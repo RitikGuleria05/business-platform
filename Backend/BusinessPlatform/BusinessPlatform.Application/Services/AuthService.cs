@@ -43,7 +43,10 @@ namespace BusinessPlatform.Application.Services
                 Email = request.Email,
                 // temporary
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-                RoleId = request.RoleId,
+
+
+                // Default role for newly registered users = Normal
+                RoleId = Guid.Parse("ea2a66d0-1589-43c8-8d3c-c7e9a96de47e"),
                 IsActive = true
             };
 
@@ -202,6 +205,11 @@ namespace BusinessPlatform.Application.Services
                 UserName = user.UserName,
                 Role = user.Role.Name
             };
+        }
+
+        public async Task<List<string>> GetUserPermissionsAsync(Guid userId)
+        {
+            return await _userRepository.GetPermissionsAsync(userId);
         }
 
 

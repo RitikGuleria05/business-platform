@@ -139,6 +139,18 @@ namespace BusinessPlatform.API.Controllers
                 message = "Password changed successfully"
             });
         }
+
+
+        [HttpGet("permissions")]
+        [Authorize]
+        public async Task<IActionResult> GetPermissions()
+        {
+            var userId = Guid.Parse(User.FindFirst("id")!.Value);
+
+            var permissions = await _authService.GetUserPermissionsAsync(userId);
+
+            return Ok(permissions);
+        }
         // i will make a mobile app of this if i have some time left
         //  fix the date time issue the serevr date time is incorrect use your own custom date whcih is accurate in all envirments
     }

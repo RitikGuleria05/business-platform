@@ -1,5 +1,6 @@
 ﻿using BusinessPlatform.Application.DTOs.Module;
 using BusinessPlatform.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,6 +8,7 @@ namespace BusinessPlatform.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ModuleController : ControllerBase
     {
         private readonly ModuleService _moduleService;

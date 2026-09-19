@@ -127,8 +127,7 @@ namespace BusinessPlatform.Application.Services
 
             if (isAssigned)
             {
-                throw new Exception(
-                    "Cannot delete permission because it is assigned to one or more roles.");
+                throw new Exception("Cannot delete permission because it is assigned to one or more roles.");
             }
 
             await _permissionRepository.DeleteAsync(permission);

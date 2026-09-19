@@ -8,6 +8,6 @@
 
         public string Password { get; set; } = string.Empty;
 
-        public Guid RoleId { get; set; }
+        //public string RoleId { get; set; } = "ea2a66d0-1589-43c8-8d3c-c7e9a96de47e";
     }
 }

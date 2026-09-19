@@ -2,6 +2,7 @@ import type { LoginResponse } from "../types/auth";
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const USER_KEY = "authUser";
+const PERMISSIONS_KEY = "authPermissions";
 const REMEMBER_EMAIL_KEY = "rememberedEmail";
 
 export const authStorage = {
@@ -36,6 +37,23 @@ export const authStorage = {
             : null;
     },
 
+    savePermissions(permissions: string[]) {
+        localStorage.setItem(
+            PERMISSIONS_KEY,
+            JSON.stringify(permissions)
+        );
+    },
+
+    getPermissions(): string[] {
+        const permissions = localStorage.getItem(
+            PERMISSIONS_KEY
+        );
+
+        return permissions
+            ? JSON.parse(permissions)
+            : [];
+    },
+
     saveRememberedEmail(email: string) {
         localStorage.setItem(
             REMEMBER_EMAIL_KEY,
@@ -62,6 +80,10 @@ export const authStorage = {
 
         localStorage.removeItem(
             USER_KEY
+        );
+
+        localStorage.removeItem(
+            PERMISSIONS_KEY
         );
     },
 };

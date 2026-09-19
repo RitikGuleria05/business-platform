@@ -1,20 +1,15 @@
 ﻿using BusinessPlatform.Application.Interfaces;
 using BusinessPlatform.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessPlatform.Infrastructure.Services
 {
-    public class PermissionService : IPermissionService
+    public class PermissionAuthorizationService : IPermissionAuthorizationService
     {
         // used in the permission middleware
         private readonly AppDbContext _context;
 
-        public PermissionService(AppDbContext context)
+        public PermissionAuthorizationService(AppDbContext context)
         {
             _context = context;
         }

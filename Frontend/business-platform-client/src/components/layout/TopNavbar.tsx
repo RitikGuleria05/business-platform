@@ -1,18 +1,71 @@
-import {Bell,LogOut} from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import {Bell,LogOut,} from "lucide-react";
+import {useLocation,useNavigate,} from "react-router-dom";
+
 import { authStorage } from "../../services/authStorage";
 import { logout } from "../../services/authService";
 
+const pageInfo: Record<string,{title: string;description: string;}> = {
+    "/dashboard": {
+        title: "Dashboard",
+        description: "Overview of your business",
+    },
+
+    "/products": {
+        title: "Products",
+        description: "Manage your products",
+    },
+
+    "/inventory": {
+        title: "Inventory",
+        description: "Manage your inventory",
+    },
+
+    "/customers": {
+        title: "Customers",
+        description: "Manage your customers",
+    },
+
+    "/sales": {
+        title: "Sales",
+        description: "Manage your sales",
+    },
+
+    "/reports": {
+        title: "Reports",
+        description: "View business reports and analytics",
+    },
+
+    "/settings": {
+        title: "Settings",
+        description: "Manage your account settings",
+    },
+
+    "/settings/change-password": {
+        title: "Change Password",
+        description: "Update your account password",
+    },
+};
+
 function TopNavbar() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const user = authStorage.getUser();
+
+    const currentPage =
+        pageInfo[location.pathname] ?? {
+            title: "BusinessPlatform",
+            description: "",
+        };
 
     const handleLogout = async () => {
         try {
             await logout();
         } catch (error) {
-            console.error("Logout failed:", error);
+            console.error(
+                "Logout failed:",
+                error
+            );
         } finally {
             authStorage.clear();
 
@@ -28,11 +81,11 @@ function TopNavbar() {
             {/* Page information */}
             <div>
                 <h2 className="text-sm font-semibold text-slate-900">
-                    Dashboard
+                    {currentPage.title}
                 </h2>
 
                 <p className="text-xs text-slate-500">
-                    Overview of your business
+                    {currentPage.description}
                 </p>
             </div>
 
@@ -67,7 +120,9 @@ function TopNavbar() {
 
                     {/* Avatar */}
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
-                        {user?.userName?.charAt(0).toUpperCase() ?? "U"}
+                        {user?.userName
+                            ?.charAt(0)
+                            .toUpperCase() ?? "U"}
                     </div>
 
 

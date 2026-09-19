@@ -13,7 +13,7 @@ namespace BusinessPlatform.API.Middleware
             _next = next;
         }
 
-        public async Task InvokeAsync(HttpContext context,IPermissionService permissionService)
+        public async Task InvokeAsync(HttpContext context,IPermissionAuthorizationService permissionService)
         {
 
             if (context.User.Identity?.IsAuthenticated == true)

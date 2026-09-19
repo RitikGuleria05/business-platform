@@ -1,19 +1,19 @@
 import { useState } from "react";
-import {Mail,Lock,Eye,EyeOff,LogIn} from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { authStorage } from "../../services/authStorage";
-import { login } from "../../services/authService";
+import { login, getUserPermissions } from "../../services/authService";
+import { useAuth } from "../../hooks/auth/AuthContext";
 
 function Login() {
     const navigate = useNavigate();
 
-    const rememberedEmail =
-        authStorage.getRememberedEmail();
+    const { setAuth } = useAuth();
 
-    const [email, setEmail] = useState(
-        rememberedEmail ?? ""
-    );
+    const rememberedEmail = authStorage.getRememberedEmail();
+
+    const [email, setEmail] = useState(rememberedEmail ?? "");
 
     const [password, setPassword] = useState("");
 
@@ -21,14 +21,11 @@ function Login() {
         rememberedEmail !== null
     );
 
-    const [showPassword, setShowPassword] =
-        useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
-    const [loading, setLoading] =
-        useState(false);
+    const [loading, setLoading] = useState(false);
 
-    const [error, setError] =
-        useState("");
+    const [error, setError] = useState("");
 
     const handleSubmit = async (
         event: React.FormEvent
@@ -41,7 +38,6 @@ function Login() {
             setError(
                 "Please enter your email and password."
             );
-
             return;
         }
 
@@ -55,10 +51,21 @@ function Login() {
 
             authStorage.saveAuth(result);
 
+            const permissions = await getUserPermissions();
+
+            authStorage.savePermissions(permissions);
+
+            setAuth(
+                {
+                    userName: result.userName,
+                    role: result.role,
+                },
+                result.token,
+                permissions
+            );
+
             if (rememberMe) {
-                authStorage.saveRememberedEmail(
-                    email
-                );
+                authStorage.saveRememberedEmail(email);
             } else {
                 authStorage.clearRememberedEmail();
             }
@@ -67,6 +74,10 @@ function Login() {
 
         } catch (error) {
             console.error(error);
+
+            // Important: if permission request fails after login,
+            // clear the partially created authentication state.
+            authStorage.clear();
 
             setError(
                 "Invalid email or password."

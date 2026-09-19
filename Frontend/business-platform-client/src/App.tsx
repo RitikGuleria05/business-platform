@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import ChangePassword from "./pages/settings/ChangePassword";
 import Login from "./pages/auth/Login";
 import Dashboard from "./pages/dashboard/Dashboard";
@@ -11,93 +11,130 @@ import Settings from "./pages/settings/Settings";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import MainLayout from "./components/layout/MainLayout";
+import CategoriesPage from "./pages/categories/Categories";
+import RolesPage from "./pages/settings/RolesPage";
+import { AuthProvider } from "./hooks/auth/AuthContext";
 
 function App() {
   return (
-    <BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* PUBLIC ROUTES */}
+          <Route path="/login" element={<Login />} />
 
-      <Routes>
-
-        {/* ==================== */}
-        {/* PUBLIC ROUTES         */}
-        {/* ==================== */}
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-
-        {/* ==================== */}
-        {/* PROTECTED ROUTES      */}
-        {/* ==================== */}
-
-        <Route element={<ProtectedRoute />}>
-
+          {/* PROTECTED ROUTES */}
           <Route element={<MainLayout />}>
 
+            {/* Dashboard */}
             <Route
               path="/dashboard"
               element={<Dashboard />}
             />
 
+            {/* Products */}
             <Route
-              path="/products"
-              element={<Products />}
-            />
+              element={
+                <ProtectedRoute permission="Product.View" />
+              }
+            >
+              <Route
+                path="/products"
+                element={<Products />}
+              />
+            </Route>
 
+            {/* Categories */}
             <Route
-              path="/inventory"
-              element={<Inventory />}
-            />
+              element={
+                <ProtectedRoute permission="Category.View" />
+              }
+            >
+              <Route
+                path="/categories"
+                element={<CategoriesPage />}
+              />
+            </Route>
 
+            {/* Inventory */}
             <Route
-              path="/customers"
-              element={<Customers />}
-            />
+              element={
+                <ProtectedRoute permission="Inventory.View" />
+              }
+            >
+              <Route
+                path="/inventory"
+                element={<Inventory />}
+              />
+            </Route>
 
+            {/* Customers */}
             <Route
-              path="/sales"
-              element={<Sales />}
-            />
+              element={
+                <ProtectedRoute permission="Customer.View" />
+              }
+            >
+              <Route
+                path="/customers"
+                element={<Customers />}
+              />
+            </Route>
 
+            {/* Sales */}
             <Route
-              path="/reports"
-              element={<Reports />}
-            />
+              element={
+                <ProtectedRoute permission="Sales.View" />
+              }
+            >
+              <Route
+                path="/sales"
+                element={<Sales />}
+              />
+            </Route>
 
+            {/* Reports */}
+            <Route
+              element={
+                <ProtectedRoute permission="Report.View" />
+              }
+            >
+              <Route
+                path="/reports"
+                element={<Reports />}
+              />
+            </Route>
+
+            {/* Settings */}
             <Route
               path="/settings"
               element={<Settings />}
             />
-            
+
+            {/* Change Password */}
             <Route
               path="/settings/change-password"
               element={<ChangePassword />}
             />
 
+            {/* Roles - Admin only */}
+            <Route
+              element={
+                <ProtectedRoute allowedRoles={["Admin"]} />
+              }
+            >
+              <Route
+                path="/settings/roles"
+                element={<RolesPage />}
+              />
+            </Route>
+
           </Route>
 
-        </Route>
-
-
-        {/* ==================== */}
-        {/* FALLBACK              */}
-        {/* ==================== */}
-
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to="/dashboard"
-              replace
-            />
-          }
-        />
-
-      </Routes>
-
-    </BrowserRouter>
+          {/* FALLBACK */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

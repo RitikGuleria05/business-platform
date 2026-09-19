@@ -62,8 +62,7 @@ namespace BusinessPlatform.API.Controllers
         [HttpGet("{id:guid}/permissions")]
         public async Task<IActionResult> GetPermissions(Guid id)
         {
-            var permissions =
-                await _roleService.GetPermissionsAsync(id);
+            var permissions =  await _roleService.GetPermissionsAsync(id);
 
             return Ok(permissions);
         }

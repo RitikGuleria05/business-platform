@@ -67,5 +67,14 @@ namespace BusinessPlatform.Infrastructure.Repositories
 
         }
 
+        public async Task<List<string>> GetPermissionsAsync(Guid userId)
+        {
+            return await _context.Users
+                .Where(u => u.Id == userId)
+                .SelectMany(u => u.Role.RolePermissions)
+                .Select(rp => rp.Permission.Name)
+                .ToListAsync();
+        }
+
     }
 }

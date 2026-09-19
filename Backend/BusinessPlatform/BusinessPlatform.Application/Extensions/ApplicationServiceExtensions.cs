@@ -1,4 +1,5 @@
-﻿using BusinessPlatform.Application.Interfaces.Reports;
+﻿using BusinessPlatform.Application.Interfaces;
+using BusinessPlatform.Application.Interfaces.Reports;
 using BusinessPlatform.Application.Services;
 using BusinessPlatform.Application.Services.Customer_Module;
 using BusinessPlatform.Application.Services.Inventory_Module;
@@ -19,6 +20,8 @@ namespace BusinessPlatform.Application.Extensions
             services.AddScoped<AuthService>();
             services.AddScoped<RoleService>();
             services.AddScoped<ModuleService>();
+            services.AddScoped<PermissionService>();
+
 
             // Product Services
             services.AddScoped<CategoryService>();

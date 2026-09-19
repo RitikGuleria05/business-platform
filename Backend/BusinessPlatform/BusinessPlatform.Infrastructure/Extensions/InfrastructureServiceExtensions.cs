@@ -46,7 +46,7 @@ namespace BusinessPlatform.Infrastructure.Extensions
             // Infrasrtucture layer service registoration
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ITokenService, JwtService>();
-            services.AddScoped<IPermissionService, PermissionService>();
+            services.AddScoped<IPermissionAuthorizationService, PermissionAuthorizationService>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
             services.AddScoped<IRefreshTokenRepository,RefreshTokenRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();

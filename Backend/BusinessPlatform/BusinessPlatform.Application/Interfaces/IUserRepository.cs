@@ -12,6 +12,7 @@ namespace BusinessPlatform.Application.Interfaces
         Task AddAsync(User user);
 
         //Task<RefreshToken?> GetRefreshTokenAsync(string token);
+        Task<List<string>> GetPermissionsAsync(Guid userId);
 
         Task SaveChangesAsync();
     }

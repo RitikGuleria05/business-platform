@@ -51,3 +51,9 @@ export const changePassword = async (request: ChangePasswordRequest) => {
 
     return response.data;
 };
+
+export const getUserPermissions = async (): Promise<string[]> => {
+    const response = await api.get<string[]>("/auth/permissions");
+
+    return response.data;
+};
