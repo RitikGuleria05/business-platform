@@ -12,11 +12,9 @@ namespace BusinessPlatform.Infrastructure.Repositories
 {
     public class RefreshTokenRepository : IRefreshTokenRepository
     {
-
         private readonly AppDbContext _context;
 
-        public RefreshTokenRepository(
-            AppDbContext context)
+        public RefreshTokenRepository(AppDbContext context)
         {
             _context = context;
         }
@@ -26,18 +24,40 @@ namespace BusinessPlatform.Infrastructure.Repositories
             await _context.RefreshTokens.AddAsync(token);
         }
 
-        public async Task SaveAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<RefreshToken?> GetByTokenAsync(string token)
         {
             return await _context.RefreshTokens
                 .Include(x => x.User)
                 .ThenInclude(x => x.Role)
-                .FirstOrDefaultAsync(x => x.Token == token);
+                .FirstOrDefaultAsync(x =>
+                    x.Token == token &&
+                    !x.IsRevoked &&
+                    x.ExpiresAt > DateTime.UtcNow);
         }
 
+        public async Task RevokeAsync(RefreshToken token)
+        {
+            token.IsRevoked = true;
+        }
+
+        public async Task RevokeAllForUserAsync(Guid userId)
+        {
+            var activeTokens = await _context.RefreshTokens
+                .Where(x =>
+                    x.UserId == userId &&
+                    !x.IsRevoked &&
+                    x.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync();
+
+            foreach (var token in activeTokens)
+            {
+                token.IsRevoked = true;
+            }
+        }
+
+        public async Task SaveAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

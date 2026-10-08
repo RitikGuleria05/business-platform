@@ -130,8 +130,7 @@ namespace BusinessPlatform.Application.Services.Product_Module
                 throw new NotFoundException("Category not found.");
             }
 
-            var hasProducts =
-                await _categoryRepository.HasProductsAsync(id);
+            var hasProducts = await _categoryRepository.HasProductsAsync(id);
 
             if (hasProducts)
             {

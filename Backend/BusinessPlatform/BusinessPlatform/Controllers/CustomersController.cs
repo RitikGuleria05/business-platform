@@ -1,4 +1,5 @@
-﻿using BusinessPlatform.Application.DTOs.Customer_Module;
+﻿using BusinessPlatform.API.Attributes;
+using BusinessPlatform.Application.DTOs.Customer_Module;
 using BusinessPlatform.Application.Services.Customer_Module;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,7 @@ namespace BusinessPlatform.API.Controllers
 
         // GET: api/customers
         [HttpGet]
+        [Permission("Customer.View")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _customerService.GetAllAsync());
@@ -26,6 +28,7 @@ namespace BusinessPlatform.API.Controllers
 
         // GET: api/customers/{id}
         [HttpGet("{id:guid}")]
+        [Permission("Customer.View")]
         public async Task<IActionResult> GetById(Guid id)
         {
             return Ok(await _customerService.GetByIdAsync(id));
@@ -33,6 +36,7 @@ namespace BusinessPlatform.API.Controllers
 
         // POST: api/customers
         [HttpPost]
+        [Permission("Customer.Create")]
         public async Task<IActionResult> Create(CreateCustomerRequest request)
         {
             var customer = await _customerService.CreateAsync(request);
@@ -45,6 +49,7 @@ namespace BusinessPlatform.API.Controllers
 
         // PUT: api/customers/{id}
         [HttpPut("{id:guid}")]
+        [Permission("Customer.Edit")]
         public async Task<IActionResult> Update(Guid id,UpdateCustomerRequest request)
         {
             return Ok(await _customerService.UpdateAsync(id, request));
@@ -52,6 +57,7 @@ namespace BusinessPlatform.API.Controllers
 
         // DELETE: api/customers/{id}
         [HttpDelete("{id:guid}")]
+        [Permission("Customer.Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _customerService.DeleteAsync(id);

@@ -7,9 +7,18 @@ import {
     ShoppingCart,
     Tags,
     Users,
+    X,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../hooks/auth/AuthContext";
+import navbarLogo from "../../assets/navbar-logo.svg";
+import appIcon from "../../assets/app-icon.svg";
+
+interface SidebarProps {
+    isOpen: boolean;
+    isCollapsed: boolean;
+    onClose: () => void;
+}
 
 const navigationItems = [
     {
@@ -46,7 +55,7 @@ const navigationItems = [
         name: "Sales",
         path: "/sales",
         icon: ShoppingCart,
-        permission: "Sale.View",
+        permission: "sales.read",
     },
     {
         name: "Reports",
@@ -56,71 +65,141 @@ const navigationItems = [
     },
 ];
 
-function Sidebar() {
+function Sidebar({
+    isOpen,
+    isCollapsed,
+    onClose,
+}: SidebarProps) {
     const { hasPermission } = useAuth();
 
     const visibleItems = navigationItems.filter(
-        (item) =>
-            !item.permission || hasPermission(item.permission)
+        (item) => !item.permission || hasPermission(item.permission)
     );
 
     return (
-        <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
-            {/* Logo */}
-            <div className="flex h-16 items-center border-b border-slate-200 px-6">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 font-bold text-white">
-                        B
-                    </div>
+        <>
+            <div
+                className={`fixed inset-0 z-40 bg-slate-950/40 transition-opacity duration-200 lg:hidden ${isOpen
+                        ? "pointer-events-auto opacity-100"
+                        : "pointer-events-none opacity-0"
+                    }`}
+                onClick={onClose}
+                aria-hidden="true"
+            />
 
-                    <span className="text-lg font-bold text-slate-900">
-                        BusinessPlatform
-                    </span>
-                </div>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 space-y-1 p-4">
-                {visibleItems.map((item) => {
-                    const Icon = item.icon;
-
-                    return (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            className={({ isActive }) =>
-                                `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                                    isActive
-                                        ? "bg-indigo-50 text-indigo-700"
-                                        : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                                }`
-                            }
+            <aside
+                className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-200 bg-slate-50 transition-all duration-200 dark:border-slate-800 dark:bg-slate-900 ${isOpen ? "translate-x-0" : "-translate-x-full"
+                    } lg:static lg:h-dvh lg:translate-x-0 ${isCollapsed ? "lg:w-20" : "lg:w-64"
+                    }`}
+                aria-label="Main navigation"
+            >
+                <div className="flex h-16 shrink-0 items-center border-b border-slate-200 px-4 dark:border-slate-800">
+                    <NavLink
+                        to="/dashboard"
+                        onClick={onClose}
+                        className={`flex items-center ${isCollapsed ? "lg:mx-auto" : ""
+                            }`}
+                        aria-label="BusinessPlatform dashboard"
+                    >
+                        <div
+                            className={`flex items-center ${isCollapsed
+                                    ? "lg:h-10 lg:w-10 lg:justify-center"
+                                    : "rounded-lg bg-white px-2 py-1"
+                                }`}
                         >
-                            <Icon className="h-5 w-5" />
+                            <img
+                                src={navbarLogo}
+                                alt="BusinessPlatform"
+                                className={`h-8 w-auto object-contain ${isCollapsed ? "hidden" : "block"
+                                    }`}
+                            />
 
-                            <span>{item.name}</span>
-                        </NavLink>
-                    );
-                })}
-            </nav>
+                            <img
+                                src={appIcon}
+                                alt="BusinessPlatform"
+                                className={`h-9 w-9 object-contain ${isCollapsed ? "block" : "hidden"
+                                    }`}
+                            />
+                        </div>
+                    </NavLink>
 
-            {/* Settings */}
-            <div className="border-t border-slate-200 p-4">
-                <NavLink
-                    to="/settings"
-                    className={({ isActive }) =>
-                        `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-                            isActive
-                                ? "bg-indigo-50 text-indigo-700"
-                                : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-                        }`
-                    }
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Close navigation menu"
+                        className="ml-auto inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100 lg:hidden">
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+
+                <nav
+                    className="min-h-0 flex-1 overflow-y-auto px-3 py-4"
+                    aria-label="Primary navigation"
                 >
-                    <Settings className="h-5 w-5" />
-                    <span>Settings</span>
-                </NavLink>
-            </div>
-        </aside>
+                    <div className="space-y-1">
+                        {visibleItems.map((item) => {
+                            const Icon = item.icon;
+
+                            return (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    onClick={onClose}
+                                    title={isCollapsed ? item.name : undefined}
+                                    className={({ isActive }) =>
+                                        `flex min-h-10 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isCollapsed
+                                            ? "lg:justify-center lg:px-2"
+                                            : ""
+                                        } ${isActive
+                                            ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-400"
+                                            : "text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                                        }`
+                                    }
+                                >
+                                    <Icon
+                                        className="h-[18px] w-[18px] shrink-0"
+                                        strokeWidth={1.8}
+                                    />
+
+                                    <span
+                                        className={`truncate ${isCollapsed ? "lg:hidden" : ""
+                                            }`}
+                                    >
+                                        {item.name}
+                                    </span>
+                                </NavLink>
+                            );
+                        })}
+                    </div>
+                </nav>
+
+                <div className="shrink-0 border-t border-slate-200 p-3 dark:border-slate-800">
+                    <NavLink
+                        to="/settings"
+                        onClick={onClose}
+                        title={isCollapsed ? "Settings" : undefined}
+                        className={({ isActive }) =>
+                            `flex min-h-10 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isCollapsed
+                                ? "lg:justify-center lg:px-2"
+                                : ""
+                            } ${isActive
+                                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-400"
+                                : "text-slate-600 hover:bg-white hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                            }`
+                        }
+                    >
+                        <Settings
+                            className="h-[18px] w-[18px] shrink-0"
+                            strokeWidth={1.8}
+                        />
+
+                        <span className={isCollapsed ? "lg:hidden" : ""}>
+                            Settings
+                        </span>
+                    </NavLink>
+                </div>
+            </aside>
+        </>
     );
 }
 

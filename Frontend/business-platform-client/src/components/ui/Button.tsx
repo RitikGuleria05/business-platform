@@ -1,7 +1,8 @@
 import type { ButtonHTMLAttributes } from "react";
 import { Loader2 } from "lucide-react";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps
+    extends ButtonHTMLAttributes<HTMLButtonElement> {
     loading?: boolean;
 }
 
@@ -18,6 +19,7 @@ function Button({
             disabled={disabled || loading}
             className={`
                 inline-flex
+                min-h-10
                 items-center
                 justify-center
                 gap-2
@@ -26,10 +28,16 @@ function Button({
                 px-4
                 py-2.5
                 text-sm
-                font-semibold
+                font-medium
                 text-white
-                transition
+                shadow-sm
+                outline-none
+                transition-colors
+                duration-150
                 hover:bg-indigo-700
+                focus-visible:ring-2
+                focus-visible:ring-indigo-500
+                focus-visible:ring-offset-2
                 disabled:cursor-not-allowed
                 disabled:opacity-60
                 ${className}

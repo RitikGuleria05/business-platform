@@ -1,6 +1,10 @@
 interface BadgeProps {
     children: React.ReactNode;
-    variant?: "success" | "warning" | "danger" | "neutral";
+    variant?:
+        | "success"
+        | "warning"
+        | "danger"
+        | "neutral";
     className?: string;
 }
 
@@ -11,21 +15,29 @@ function Badge({
 }: BadgeProps) {
     const variantStyles = {
         success:
-            "bg-green-50 text-green-700 border-green-200",
-
+            "border-green-200 bg-green-50 text-green-700",
         warning:
-            "bg-yellow-50 text-yellow-700 border-yellow-200",
-
+            "border-amber-200 bg-amber-50 text-amber-700",
         danger:
-            "bg-red-50 text-red-700 border-red-200",
-
+            "border-red-200 bg-red-50 text-red-700",
         neutral:
-            "bg-slate-50 text-slate-700 border-slate-200",
+            "border-slate-200 bg-slate-50 text-slate-600",
     };
 
     return (
         <span
-            className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium ${variantStyles[variant]} ${className}`}
+            className={`
+                inline-flex
+                items-center
+                rounded-md
+                border
+                px-2.5
+                py-1
+                text-xs
+                font-medium
+                ${variantStyles[variant]}
+                ${className}
+            `}
         >
             {children}
         </span>

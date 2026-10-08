@@ -1,4 +1,5 @@
-﻿using BusinessPlatform.Application.DTOs.Product;
+﻿using BusinessPlatform.API.Attributes;
+using BusinessPlatform.Application.DTOs.Product;
 using BusinessPlatform.Application.Services.Product_Module;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ namespace BusinessPlatform.API.Controllers
 
         // GET: api/categories
         [HttpGet]
+        [Permission("Category.View")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _categoryService.GetAllAsync());
@@ -32,6 +34,7 @@ namespace BusinessPlatform.API.Controllers
 
         // POST: api/categories
         [HttpPost]
+        [Permission("Category.Create")]
         public async Task<IActionResult> Create(CreateCategoryRequest request)
         {
             var category = await _categoryService.CreateAsync(request);
@@ -44,6 +47,7 @@ namespace BusinessPlatform.API.Controllers
 
         // PUT: api/categories/{id}
         [HttpPut("{id:guid}")]
+        [Permission("Category.Edit")]
         public async Task<IActionResult> Update(Guid id,UpdateCategoryRequest request)
         {
             return Ok(await _categoryService.UpdateAsync(id, request));
@@ -51,6 +55,7 @@ namespace BusinessPlatform.API.Controllers
 
         // DELETE: api/categories/{id}
         [HttpDelete("{id:guid}")]
+        [Permission("Category.Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
             await _categoryService.DeleteAsync(id);

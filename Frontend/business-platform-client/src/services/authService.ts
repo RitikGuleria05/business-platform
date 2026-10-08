@@ -1,16 +1,10 @@
 import api from "./api";
 import authApi from "../services/Auth/authApi";
-
-import type {
-    RegisterRequest,
-    LoginRequest,
-    LoginResponse,
-    ChangePasswordRequest,
-} from "../types/auth";
+import type {RegisterRequest,LoginRequest,LoginResponse,ChangePasswordRequest} from "../types/auth";
 
 export const register = async (request: RegisterRequest) => {
     const response = await api.post(
-        "/auth/registor",
+        "/auth/register",
         request
     );
 

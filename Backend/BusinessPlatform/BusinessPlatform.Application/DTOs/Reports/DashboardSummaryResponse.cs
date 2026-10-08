@@ -2,9 +2,11 @@
 {
     public class DashboardSummaryResponse
     {
-        public int TotalOrders { get; set; }
+        public decimal TodaySales { get; set; }
 
-        public decimal TotalRevenue { get; set; }
+        public int TodayOrders { get; set; }
+
+        public decimal TodayReturns { get; set; }
 
         public int TotalCustomers { get; set; }
 

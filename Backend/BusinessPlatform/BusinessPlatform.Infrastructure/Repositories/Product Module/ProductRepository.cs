@@ -26,6 +26,7 @@ namespace BusinessPlatform.Infrastructure.Repositories.Product_Module
             return await _context.Products
                 .Include(x => x.Category)
                 .Include(x => x.Inventory)
+                .Where(x => x.IsActive)
                 .AsNoTracking()
                 .OrderBy(x => x.Name)
                 .ToListAsync();
@@ -36,7 +37,7 @@ namespace BusinessPlatform.Infrastructure.Repositories.Product_Module
             return await _context.Products
                 .Include(x => x.Category)
                 .Include(x => x.Inventory)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
         }
 
         public async Task<Product?> GetBySkuAsync(string sku)
@@ -67,17 +68,23 @@ namespace BusinessPlatform.Infrastructure.Repositories.Product_Module
             _context.Products.Update(product);
         }
 
+        //public Task DeleteAsync(Product product)
+        //{
+        //    _context.Products.Remove(product);
+
+        //    return Task.CompletedTask;
+        //}
+
         public Task DeleteAsync(Product product)
         {
-            _context.Products.Remove(product);
+            product.IsActive = false;
 
             return Task.CompletedTask;
         }
 
         public async Task<bool> HasSaleItemsAsync(Guid productId)
         {
-            // We'll implement this after SaleItem is created.
-            return false;
+            return await _context.SaleItems.AnyAsync(x => x.ProductId == productId);
         }
 
         public async Task SaveChangesAsync()

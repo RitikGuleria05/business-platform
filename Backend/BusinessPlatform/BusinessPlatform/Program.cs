@@ -5,6 +5,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using BusinessPlatform.API.Middleware;
+using BusinessPlatform.Application.Interfaces.Common;
+using BusinessPlatform.Infrastructure.Repositories;
+using BusinessPlatform.Application.Interfaces.Reports;
+using BusinessPlatform.Application.Services.Reports_Service;
+using QuestPDF.Infrastructure;
+using BusinessPlatform.Application.Services.Turnstile;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,34 +29,26 @@ builder.Services.AddCors(options =>
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddSingleton<IAppClock, AppClock>();
+builder.Services.AddScoped<IExcelReportService, ExcelReportService>();
+builder.Services.AddScoped<IPdfReportService, PdfReportService>();
 
 builder.Services.AddAuthentication(options =>
 {
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 
-    options.DefaultAuthenticateScheme =
-        JwtBearerDefaults.AuthenticationScheme;
-
-
-    options.DefaultChallengeScheme =
-        JwtBearerDefaults.AuthenticationScheme;
-
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
 {
 
-    var key =
-        builder.Configuration["Jwt:Key"];
+    var key = builder.Configuration["Jwt:Key"];
 
-
-    options.TokenValidationParameters =
-        new TokenValidationParameters
+    options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
 
-            IssuerSigningKey =
-                new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(key!)
-                ),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key!)),
 
             ValidateIssuer = false,
 
@@ -60,9 +58,7 @@ builder.Services.AddAuthentication(options =>
         };
 });
 
-builder.Services.AddInfrastructure(
-    builder.Configuration
-);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddApplicationServices();
 
@@ -113,6 +109,14 @@ builder.Services.AddSwaggerGen(options =>
 
 });
 
+// quest licence setup
+QuestPDF.Settings.License = LicenseType.Community;
+
+builder.Services.Configure<TurnstileOptions>(
+    builder.Configuration.GetSection("Turnstile")
+);
+
+builder.Services.AddHttpClient<ITurnstileService, TurnstileService>();
 
 var app = builder.Build();
 

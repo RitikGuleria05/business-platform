@@ -1,6 +1,7 @@
 ﻿using BCrypt.Net;
 using BusinessPlatform.Application.DTOs;
 using BusinessPlatform.Application.Interfaces;
+using BusinessPlatform.Application.Services.Turnstile;
 using BusinessPlatform.Domain.Entities;
 using BusinessPlatform.Domain.Exceptions;
 using System;
@@ -13,21 +14,28 @@ namespace BusinessPlatform.Application.Services
 {
     public class AuthService
     {
-
         private readonly IUserRepository _userRepository;
         private readonly ITokenService _tokenService;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly ITurnstileService _turnstileService;
 
-        public AuthService(IUserRepository userRepository, ITokenService tokenService, IRefreshTokenRepository refreshTokenRepository)
+        public AuthService(IUserRepository userRepository,ITokenService tokenService,IRefreshTokenRepository refreshTokenRepository, ITurnstileService turnstileService)
         {
             _userRepository = userRepository;
             _refreshTokenRepository = refreshTokenRepository;
             _tokenService = tokenService;
+            _turnstileService = turnstileService;
         }
 
         public async Task RegistorAsync(RegisterRequest request)
         {
-            // check user already exist
+            var turnstileValid = await _turnstileService.ValidateAsync(request.TurnstileToken);
+
+            if (!turnstileValid)
+            {
+                throw new Exception("Security verification failed");
+            }
+
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
 
             if (existingUser != null)
@@ -35,36 +43,35 @@ namespace BusinessPlatform.Application.Services
                 throw new Exception("User already exists");
             }
 
-            // create new user
             var newUser = new User
             {
                 Id = Guid.NewGuid(),
                 UserName = request.UserName,
                 Email = request.Email,
-                // temporary
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-
-
-                // Default role for newly registered users = Normal
                 RoleId = Guid.Parse("ea2a66d0-1589-43c8-8d3c-c7e9a96de47e"),
                 IsActive = true
             };
 
             await _userRepository.AddAsync(newUser);
-
             await _userRepository.SaveChangesAsync();
         }
 
         public async Task<LoginResult> LoginAsync(LoginRequest request)
         {
-            var user = await _userRepository.GetByEmailAsync(request.Email);
+            var user =
+                await _userRepository.GetByEmailAsync(request.Email);
 
             if (user == null)
             {
                 throw new Exception("Invalid email or password");
             }
 
-            var passwordValid = BCrypt.Net.BCrypt.Verify(request.Password,user.PasswordHash);
+            var passwordValid =
+                BCrypt.Net.BCrypt.Verify(
+                    request.Password,
+                    user.PasswordHash
+                );
 
             if (!passwordValid)
             {
@@ -76,9 +83,30 @@ namespace BusinessPlatform.Application.Services
                 throw new Exception("User account is inactive");
             }
 
-            var accessToken = _tokenService.GenerateToken(user.Id,user.Email,user.Role.Name);
+            // -------------------------------------------------
+            // Revoke all previous active refresh tokens
+            // -------------------------------------------------
 
-            var refreshToken = _tokenService.GenerateRefreshToken();
+            await _refreshTokenRepository
+                .RevokeAllForUserAsync(user.Id);
+
+            // -------------------------------------------------
+            // Generate access token
+            // -------------------------------------------------
+
+            var accessToken =
+                _tokenService.GenerateToken(
+                    user.Id,
+                    user.Email,
+                    user.Role.Name
+                );
+
+            // -------------------------------------------------
+            // Generate refresh token
+            // -------------------------------------------------
+
+            var refreshToken =
+                _tokenService.GenerateRefreshToken();
 
             var refreshTokenEntity = new RefreshToken
             {
@@ -90,7 +118,9 @@ namespace BusinessPlatform.Application.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _refreshTokenRepository.AddAsync(refreshTokenEntity);
+            await _refreshTokenRepository
+                .AddAsync(refreshTokenEntity);
+
             await _refreshTokenRepository.SaveAsync();
 
             return new LoginResult
@@ -105,31 +135,41 @@ namespace BusinessPlatform.Application.Services
         public async Task LogoutAsync(string refreshToken)
         {
             if (string.IsNullOrWhiteSpace(refreshToken))
+            {
                 return;
+            }
 
-            var token = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            var token =
+                await _refreshTokenRepository
+                    .GetByTokenAsync(refreshToken);
 
             if (token == null)
+            {
                 return;
+            }
 
-            if (token.IsRevoked)
-                return;
+            await _refreshTokenRepository.RevokeAsync(token);
 
-            token.IsRevoked = true;
-
-            await _userRepository.SaveChangesAsync();
+            await _refreshTokenRepository.SaveAsync();
         }
 
-        public async Task ChangePasswordAsync(Guid userId,ChangePasswordRequest request)
+        public async Task ChangePasswordAsync(
+            Guid userId,
+            ChangePasswordRequest request)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
+            var user =
+                await _userRepository.GetByIdAsync(userId);
 
             if (user == null)
             {
                 throw new Exception("User not found");
             }
 
-            bool correct = BCrypt.Net.BCrypt.Verify(request.CurrentPassword,user.PasswordHash);
+            var correct =
+                BCrypt.Net.BCrypt.Verify(
+                    request.CurrentPassword,
+                    user.PasswordHash
+                );
 
             if (!correct)
             {
@@ -138,28 +178,39 @@ namespace BusinessPlatform.Application.Services
                 );
             }
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            user.PasswordHash =
+                BCrypt.Net.BCrypt.HashPassword(
+                    request.NewPassword
+                );
 
             await _userRepository.SaveChangesAsync();
         }
 
-        public async Task<LoginResult> RefreshTokenAsync(string refreshToken)
+        public async Task<LoginResult> RefreshTokenAsync(
+            string refreshToken)
         {
-            var oldRefreshToken = await _refreshTokenRepository.GetByTokenAsync(refreshToken);
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                throw new Exception("Refresh token is required");
+            }
+
+            // -------------------------------------------------
+            // Get only a valid refresh token
+            // Repository checks:
+            // 1. Token matches
+            // 2. Token is not revoked
+            // 3. Token is not expired
+            // -------------------------------------------------
+
+            var oldRefreshToken =
+                await _refreshTokenRepository
+                    .GetByTokenAsync(refreshToken);
 
             if (oldRefreshToken == null)
             {
-                throw new Exception("Invalid refresh token");
-            }
-
-            if (oldRefreshToken.IsRevoked)
-            {
-                throw new Exception("Refresh token revoked");
-            }
-
-            if (oldRefreshToken.ExpiresAt <= DateTime.UtcNow)
-            {
-                throw new Exception("Refresh token expired");
+                throw new Exception(
+                    "Invalid, expired, or revoked refresh token"
+                );
             }
 
             var user = oldRefreshToken.User;
@@ -171,16 +222,33 @@ namespace BusinessPlatform.Application.Services
 
             if (!user.IsActive)
             {
-                throw new Exception("User account is inactive");
+                throw new Exception(
+                    "User account is inactive"
+                );
             }
 
+            // -------------------------------------------------
             // Revoke old refresh token
-            oldRefreshToken.IsRevoked = true;
+            // -------------------------------------------------
 
+            await _refreshTokenRepository
+                .RevokeAsync(oldRefreshToken);
+
+            // -------------------------------------------------
             // Generate new access token
-            var newAccessToken = _tokenService.GenerateToken(user.Id,user.Email,user.Role.Name);
+            // -------------------------------------------------
 
+            var newAccessToken =
+                _tokenService.GenerateToken(
+                    user.Id,
+                    user.Email,
+                    user.Role.Name
+                );
+
+            // -------------------------------------------------
             // Generate new refresh token
+            // -------------------------------------------------
+
             var newRefreshToken =
                 _tokenService.GenerateRefreshToken();
 
@@ -194,7 +262,8 @@ namespace BusinessPlatform.Application.Services
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _refreshTokenRepository.AddAsync(newRefreshTokenEntity);
+            await _refreshTokenRepository
+                .AddAsync(newRefreshTokenEntity);
 
             await _refreshTokenRepository.SaveAsync();
 
@@ -207,11 +276,11 @@ namespace BusinessPlatform.Application.Services
             };
         }
 
-        public async Task<List<string>> GetUserPermissionsAsync(Guid userId)
+        public async Task<List<string>> GetUserPermissionsAsync(
+            Guid userId)
         {
-            return await _userRepository.GetPermissionsAsync(userId);
+            return await _userRepository
+                .GetPermissionsAsync(userId);
         }
-
-
     }
 }

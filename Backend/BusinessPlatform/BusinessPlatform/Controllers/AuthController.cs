@@ -108,7 +108,7 @@ namespace BusinessPlatform.API.Controllers
                 new CookieOptions
                 {
                     Secure = true,
-                    SameSite = SameSiteMode.None,
+                    SameSite = SameSiteMode.Lax,
                     Path = "/api/auth"
                 });
 
@@ -153,5 +153,6 @@ namespace BusinessPlatform.API.Controllers
         }
         // i will make a mobile app of this if i have some time left
         //  fix the date time issue the serevr date time is incorrect use your own custom date whcih is accurate in all envirments
+        // we will soon add a notification module in this .
     }
 }

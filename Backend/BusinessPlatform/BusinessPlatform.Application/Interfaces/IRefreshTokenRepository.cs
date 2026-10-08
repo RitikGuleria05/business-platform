@@ -11,9 +11,13 @@ namespace BusinessPlatform.Application.Interfaces
     {
         Task AddAsync(RefreshToken token);
 
-        Task SaveAsync();
-
         Task<RefreshToken?> GetByTokenAsync(string token);
+
+        Task RevokeAsync(RefreshToken token);
+
+        Task RevokeAllForUserAsync(Guid userId);
+
+        Task SaveAsync();
 
     }
 }

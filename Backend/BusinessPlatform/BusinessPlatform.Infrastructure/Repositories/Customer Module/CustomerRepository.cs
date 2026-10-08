@@ -18,6 +18,7 @@ namespace BusinessPlatform.Infrastructure.Repositories.Customer_Module
         public async Task<List<Customer>> GetAllAsync()
         {
             return await _context.Customers
+                .Where(c => c.IsActive)
                 .AsNoTracking()
                 .OrderBy(c => c.FirstName)
                 .ThenBy(c => c.LastName)
@@ -54,18 +55,16 @@ namespace BusinessPlatform.Infrastructure.Repositories.Customer_Module
 
         public Task DeleteAsync(Customer customer)
         {
-            _context.Customers.Remove(customer);
+            customer.IsActive = false;
+            _context.Customers.Update(customer);
+
             return Task.CompletedTask;
         }
 
         public async Task<bool> HasSalesAsync(Guid customerId)
         {
-            // Until the Sale module is created
-            return false;
-
-            // Later:
-            // return await _context.Sales
-            //     .AnyAsync(s => s.CustomerId == customerId);
+            return await _context.Sales
+                .AnyAsync(s => s.CustomerId == customerId);
         }
 
         public async Task SaveChangesAsync()

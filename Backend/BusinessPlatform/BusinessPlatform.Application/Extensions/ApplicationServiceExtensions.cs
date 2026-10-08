@@ -13,8 +13,7 @@ namespace BusinessPlatform.Application.Extensions
     public static class ApplicationServiceExtensions
     {
         // for the learning purpose i mannaly done the mapping but further i will use the auto mapper in services and where it is needed.
-        public static IServiceCollection AddApplicationServices(
-            this IServiceCollection services)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
 
             services.AddScoped<AuthService>();
@@ -39,6 +38,8 @@ namespace BusinessPlatform.Application.Extensions
 
             // reports
             services.AddScoped<ReportService>();
+
+
 
             return services;
 

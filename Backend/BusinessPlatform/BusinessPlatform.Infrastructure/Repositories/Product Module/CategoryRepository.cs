@@ -46,7 +46,9 @@ namespace BusinessPlatform.Infrastructure.Repositories.Product_Module
 
         public Task DeleteAsync(Category category)
         {
-            _context.Categories.Remove(category);
+            category.IsActive = false;
+
+            _context.Categories.Update(category);
 
             return Task.CompletedTask;
         }

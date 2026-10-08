@@ -1,6 +1,6 @@
-﻿using BusinessPlatform.Application.DTOs.Inventory_Module;
+﻿using BusinessPlatform.API.Attributes;
+using BusinessPlatform.Application.DTOs.Inventory_Module;
 using BusinessPlatform.Application.Services.Inventory_Module;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BusinessPlatform.API.Controllers
@@ -20,6 +20,7 @@ namespace BusinessPlatform.API.Controllers
         // GET: api/inventory
 
         [HttpGet]
+        [Permission("Inventory.View")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _inventoryService.GetAllAsync());
@@ -27,6 +28,7 @@ namespace BusinessPlatform.API.Controllers
 
         // GET: api/inventory/{productId}
         [HttpGet("{productId:guid}")]
+        [Permission("Inventory.View")]
         public async Task<IActionResult> GetByProduct(Guid productId)
         {
             return Ok(await _inventoryService.GetByProductIdAsync(productId));
@@ -34,9 +36,8 @@ namespace BusinessPlatform.API.Controllers
 
         // PUT: api/inventory/{productId}
         [HttpPut("{productId:guid}")]
-        public async Task<IActionResult> UpdateSettings(
-            Guid productId,
-            UpdateInventoryRequest request)
+        [Permission("Inventory.Settings")]
+        public async Task<IActionResult> UpdateSettings(Guid productId,UpdateInventoryRequest request)
         {
             await _inventoryService.UpdateInventorySettingsAsync(productId, request);
 
@@ -48,8 +49,8 @@ namespace BusinessPlatform.API.Controllers
 
         // POST: api/inventory/increase
         [HttpPost("increase")]
-        public async Task<IActionResult> IncreaseStock(
-            IncreaseStockRequest request)
+        [Permission("Inventory.Increase")]
+        public async Task<IActionResult> IncreaseStock(IncreaseStockRequest request)
         {
             await _inventoryService.IncreaseStockAsync(request);
 
@@ -61,8 +62,8 @@ namespace BusinessPlatform.API.Controllers
 
         // POST: api/inventory/decrease
         [HttpPost("decrease")]
-        public async Task<IActionResult> DecreaseStock(
-            DecreaseStockRequest request)
+        [Permission("Inventory.Decrease")]
+        public async Task<IActionResult> DecreaseStock(DecreaseStockRequest request)
         {
             await _inventoryService.DecreaseStockAsync(request);
 
@@ -74,8 +75,8 @@ namespace BusinessPlatform.API.Controllers
 
         // POST: api/inventory/adjust
         [HttpPost("adjust")]
-        public async Task<IActionResult> AdjustStock(
-            AdjustStockRequest request)
+        [Permission("Inventory.Adjust")]
+        public async Task<IActionResult> AdjustStock(AdjustStockRequest request)
         {
             await _inventoryService.AdjustStockAsync(request);
 
@@ -87,6 +88,7 @@ namespace BusinessPlatform.API.Controllers
 
         // GET: api/inventory/low-stock
         [HttpGet("low-stock")]
+        [Permission("Inventory.View")]
         public async Task<IActionResult> LowStock()
         {
             return Ok(await _inventoryService.GetLowStockAsync());
@@ -94,6 +96,7 @@ namespace BusinessPlatform.API.Controllers
 
         // GET: api/inventory/out-of-stock
         [HttpGet("out-of-stock")]
+        [Permission("Inventory.View")]
         public async Task<IActionResult> OutOfStock()
         {
             return Ok(await _inventoryService.GetOutOfStockAsync());

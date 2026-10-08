@@ -1,4 +1,5 @@
-﻿using BusinessPlatform.Application.DTOs.SaleReturn;
+﻿using BusinessPlatform.API.Attributes;
+using BusinessPlatform.Application.DTOs.SaleReturn;
 using BusinessPlatform.Application.Services.Sale_Module;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,7 @@ namespace BusinessPlatform.API.Controllers
 
         // POST: api/salereturns
         [HttpPost]
+        [Permission("sales.return")]
         public async Task<IActionResult> Create(
             CreateSaleReturnRequest request)
         {
@@ -29,16 +31,17 @@ namespace BusinessPlatform.API.Controllers
 
         // GET: api/salereturns/{id}
         [HttpGet("{id:guid}")]
+        [Permission("sales.return.read")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var result =
-                await _saleReturnService.GetByIdAsync(id);
+            var result = await _saleReturnService.GetByIdAsync(id);
 
             return Ok(result);
         }
 
         // GET: api/salereturns/sale/{saleId}
         [HttpGet("sale/{saleId:guid}")]
+        [Permission("sales.return.read")]
         public async Task<IActionResult> GetBySaleId(
             Guid saleId)
         {

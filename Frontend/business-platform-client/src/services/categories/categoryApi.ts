@@ -1,24 +1,37 @@
-import api from '../api';
-import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from '../../types/Categories/category';
+import api from "../api";
+
+import type {Category,CreateCategoryRequest,UpdateCategoryRequest} from "../../types/Categories/category.types.ts";
 
 export const categoryApi = {
-  getAll: async (): Promise<Category[]> => {
-    const res = await api.get('/categories');
-    return res.data;
-  },
-  getById: async (id: string): Promise<Category> => {
-    const res = await api.get(`/categories/${id}`);
-    return res.data;
-  },
-  create: async (data: CreateCategoryRequest): Promise<Category> => {
-    const res = await api.post('/categories', data);
-    return res.data;
-  },
-  update: async (id: string, data: UpdateCategoryRequest): Promise<Category> => {
-    const res = await api.put(`/categories/${id}`, data);
-    return res.data;
-  },
-  delete: async (id: string): Promise<void> => {
-    await api.delete(`/categories/${id}`);
-  },
+    getAll: async (): Promise<Category[]> => {
+        const response = await api.get<Category[]>("/Categories");
+        return response.data;
+    },
+
+    getById: async (id: string): Promise<Category> => {
+        const response = await api.get<Category>(
+            `/Categories/${id}`
+        );
+        return response.data;
+    },
+
+    create: async (request: CreateCategoryRequest): Promise<Category> => {
+        const response = await api.post<Category>(
+            "/Categories",
+            request
+        );
+        return response.data;
+    },
+
+    update: async (id: string,request: UpdateCategoryRequest): Promise<Category> => {
+        const response = await api.put<Category>(
+            `/Categories/${id}`,
+            request
+        );
+        return response.data;
+    },
+
+    delete: async (id: string): Promise<void> => {
+        await api.delete(`/Categories/${id}`);
+    },
 };

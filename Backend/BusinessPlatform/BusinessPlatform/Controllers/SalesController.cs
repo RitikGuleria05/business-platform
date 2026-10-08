@@ -1,4 +1,5 @@
-﻿using BusinessPlatform.Application.DTOs.Sale_Module;
+﻿using BusinessPlatform.API.Attributes;
+using BusinessPlatform.Application.DTOs.Sale_Module;
 using BusinessPlatform.Application.Services;
 using BusinessPlatform.Domain.Entities;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,7 @@ namespace BusinessPlatform.API.Controllers
         // =========================================================
 
         [HttpGet]
+        [Permission("sales.read")]
         public async Task<IActionResult> GetAll()
         {
             var sales =
@@ -36,6 +38,7 @@ namespace BusinessPlatform.API.Controllers
         // =========================================================
 
         [HttpGet("{id:guid}")]
+        [Permission("sales.read")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var sale =
@@ -49,8 +52,8 @@ namespace BusinessPlatform.API.Controllers
         // =========================================================
 
         [HttpPost]
-        public async Task<IActionResult> Create(
-            CreateSaleRequest request)
+        [Permission("sales.create")]
+        public async Task<IActionResult> Create(CreateSaleRequest request)
         {
             var sale =
                 await _saleService.CreateAsync(request);
@@ -62,6 +65,7 @@ namespace BusinessPlatform.API.Controllers
         }
 
         [HttpPost("{id:guid}/cancel")]
+        [Permission("sales.cancel")]
         public async Task<IActionResult> Cancel(Guid id)
         {
             await _saleService.CancelAsync(id);
@@ -74,8 +78,5 @@ namespace BusinessPlatform.API.Controllers
 
         //Later we'll handle cancellation/returns/refunds as proper business workflows rather than a simple CRUD DELETE.
 
-        //At this point your core Sales creation flow is implemented.The next thing I recommend is testing this with dummy products, inventory, customer and payment data in Swagger, before adding returns, reports, or analytics.
-
-        //So don't rewrite this response structure now. We can polish enum serialization and add things like remaining balance, returns, cancellation, and sales history later when we reach that stage.
     }
 }
