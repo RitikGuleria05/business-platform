@@ -1,5 +1,15 @@
-import { useCallback, useEffect, useState } from "react";
-import type { Product, CreateProductRequest, UpdateProductRequest } from "../../types/Products/product.types";
+import {
+    useCallback,
+    useEffect,
+    useState,
+} from "react";
+
+import type {
+    Product,
+    CreateProductRequest,
+    UpdateProductRequest,
+} from "../../types/Products/product.types";
+
 import { productApi } from "../../services/products/productApi";
 import { getApiErrorMessage } from "../../utils/apiError";
 
@@ -8,31 +18,37 @@ export function useProducts() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const loadProducts = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
+    const loadProducts = useCallback(
+        async (categoryId?: string) => {
+            try {
+                setLoading(true);
+                setError(null);
 
-            const data = await productApi.getAll();
+                const data = await productApi.getAll(
+                    categoryId
+                );
 
-            setProducts(data);
-        } catch (error) {
-            setError(
-                getApiErrorMessage(
-                    error,
-                    "Failed to load products."
-                )
-            );
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+                setProducts(data);
+            } catch (error) {
+                setError(
+                    getApiErrorMessage(
+                        error,
+                        "Failed to load products."
+                    )
+                );
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
 
     const addProduct = async (request: CreateProductRequest) => {
         try {
             setError(null);
 
-            const product = await productApi.create(request);
+            const product =
+                await productApi.create(request);
 
             setProducts((current) => [
                 ...current,
@@ -51,11 +67,15 @@ export function useProducts() {
         }
     };
 
-    const editProduct = async (id: string, request: UpdateProductRequest) => {
+    const editProduct = async (id: string,request: UpdateProductRequest) => {
         try {
             setError(null);
 
-            const updatedProduct = await productApi.update(id, request);
+            const updatedProduct =
+                await productApi.update(
+                    id,
+                    request
+                );
 
             setProducts((current) =>
                 current.map((product) =>

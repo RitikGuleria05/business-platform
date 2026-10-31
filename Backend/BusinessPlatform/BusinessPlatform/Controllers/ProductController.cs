@@ -18,9 +18,9 @@ namespace BusinessPlatform.API.Controllers
 
         [HttpGet]
         [Permission("Product.View")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(Guid? categoryId)
         {
-            return Ok(await _productService.GetAllAsync());
+            return Ok(await _productService.GetAllAsync(categoryId));
         }
 
         [HttpGet("{id:guid}")]

@@ -11,6 +11,7 @@ using BusinessPlatform.Application.Interfaces.Reports;
 using BusinessPlatform.Application.Services.Reports_Service;
 using QuestPDF.Infrastructure;
 using BusinessPlatform.Application.Services.Turnstile;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -118,6 +119,13 @@ builder.Services.Configure<TurnstileOptions>(
 
 builder.Services.AddHttpClient<ITurnstileService, TurnstileService>();
 
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -128,17 +136,17 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("Frontend");
-
 app.UseHttpsRedirection();
-
 app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseAuthentication();
-
 app.UseAuthorization();
 
 app.UseMiddleware<PermissionMiddleware>();
-
 app.MapControllers();
 
 app.Run();
+
+public partial class Program { }
+
+// This lets WebApplicationFactory<Program> locate and start your API application from the test project. It doesn't change your API's behavior.

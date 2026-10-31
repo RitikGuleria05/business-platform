@@ -33,14 +33,14 @@ namespace BusinessPlatform.Application.Services
 
             if (!turnstileValid)
             {
-                throw new Exception("Security verification failed");
+                throw new BadRequestException("Security verification failed");
             }
 
             var existingUser = await _userRepository.GetByEmailAsync(request.Email);
 
             if (existingUser != null)
             {
-                throw new Exception("User already exists");
+                throw new BadRequestException("User already exists");
             }
 
             var newUser = new User
@@ -64,7 +64,7 @@ namespace BusinessPlatform.Application.Services
 
             if (user == null)
             {
-                throw new Exception("Invalid email or password");
+                throw new UnauthorizedException("Invalid email or password");
             }
 
             var passwordValid =
@@ -75,7 +75,7 @@ namespace BusinessPlatform.Application.Services
 
             if (!passwordValid)
             {
-                throw new Exception("Invalid email or password");
+                throw new UnauthorizedException("Invalid email or password");
             }
 
             if (!user.IsActive)
@@ -153,35 +153,19 @@ namespace BusinessPlatform.Application.Services
             await _refreshTokenRepository.SaveAsync();
         }
 
-        public async Task ChangePasswordAsync(
-            Guid userId,
-            ChangePasswordRequest request)
+        public async Task ChangePasswordAsync(Guid userId,ChangePasswordRequest request)
         {
-            var user =
-                await _userRepository.GetByIdAsync(userId);
+            var user = await _userRepository.GetByIdAsync(userId);
 
             if (user == null)
-            {
                 throw new Exception("User not found");
-            }
 
-            var correct =
-                BCrypt.Net.BCrypt.Verify(
-                    request.CurrentPassword,
-                    user.PasswordHash
-                );
+            var isPasswordValid = BCrypt.Net.BCrypt.Verify(request.CurrentPassword,user.PasswordHash);
 
-            if (!correct)
-            {
-                throw new Exception(
-                    "Current password incorrect"
-                );
-            }
+            if (!isPasswordValid)
+                throw new Exception("Current password incorrect");
 
-            user.PasswordHash =
-                BCrypt.Net.BCrypt.HashPassword(
-                    request.NewPassword
-                );
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
             await _userRepository.SaveChangesAsync();
         }
@@ -208,9 +192,7 @@ namespace BusinessPlatform.Application.Services
 
             if (oldRefreshToken == null)
             {
-                throw new Exception(
-                    "Invalid, expired, or revoked refresh token"
-                );
+                throw new UnauthorizedException("Invalid, expired, or revoked refresh token");
             }
 
             var user = oldRefreshToken.User;

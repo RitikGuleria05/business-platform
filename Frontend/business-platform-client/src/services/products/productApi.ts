@@ -1,10 +1,20 @@
 import api from "../api";
-import type {Product,CreateProductRequest,UpdateProductRequest} from "../../types/Products/product.types";
+import type {
+    Product,
+    CreateProductRequest,
+    UpdateProductRequest,
+} from "../../types/Products/product.types";
 
 export const productApi = {
-    
-    getAll: async (): Promise<Product[]> => {
-        const response = await api.get<Product[]>("/Product");
+    getAll: async (categoryId?: string): Promise<Product[]> => {
+        const response = await api.get<Product[]>(
+            "/Product",
+            {
+                params: categoryId
+                    ? { categoryId }
+                    : undefined,
+            }
+        );
 
         return response.data;
     },
@@ -26,7 +36,7 @@ export const productApi = {
         return response.data;
     },
 
-    update: async (id: string,request: UpdateProductRequest): Promise<Product> => {
+    update: async (id: string, request: UpdateProductRequest): Promise<Product> => {
         const response = await api.put<Product>(
             `/Product/${id}`,
             request

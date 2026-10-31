@@ -155,23 +155,23 @@ export default function Sales() {
         <div className="space-y-6">
             {/* Header */}
 
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">
+                    <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                         Sales
                     </h1>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         Manage sales and transactions
                     </p>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
                     <button
                         type="button"
                         onClick={fetchSales}
                         disabled={loading}
-                        className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                     >
                         <RefreshCw size={17} />
 
@@ -184,7 +184,7 @@ export default function Sales() {
                             onClick={() =>
                                 setShowForm(true)
                             }
-                            className="inline-flex items-center gap-2 rounded-lg bg-black px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800"
+                            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-slate-950"
                         >
                             <Plus size={17} />
 
@@ -197,7 +197,7 @@ export default function Sales() {
             {/* Error */}
 
             {error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+                <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-4 text-sm text-red-600 dark:text-red-400">
                     {error}
                 </div>
             )}

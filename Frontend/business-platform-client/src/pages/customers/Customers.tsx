@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus, Users } from "lucide-react";
 
@@ -31,12 +32,8 @@ function Customers() {
     } = useCustomers();
 
     const [isFormOpen, setIsFormOpen] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] =
-        useState<Customer | null>(null);
-
-    const [customerToDelete, setCustomerToDelete] =
-        useState<Customer | null>(null);
-
+    const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+    const [customerToDelete, setCustomerToDelete] = useState<Customer | null>(null);
     const [submitting, setSubmitting] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
@@ -63,11 +60,7 @@ function Customers() {
         setSelectedCustomer(null);
     };
 
-    const handleSubmit = async (
-        data:
-            | CreateCustomerRequest
-            | UpdateCustomerRequest
-    ) => {
+    const handleSubmit = async (data: CreateCustomerRequest | UpdateCustomerRequest) => {
         try {
             setSubmitting(true);
 
@@ -77,9 +70,7 @@ function Customers() {
                     data as UpdateCustomerRequest
                 );
             } else {
-                await createCustomer(
-                    data as CreateCustomerRequest
-                );
+                await createCustomer(data as CreateCustomerRequest);
             }
 
             setIsFormOpen(false);
@@ -98,9 +89,7 @@ function Customers() {
 
         try {
             setDeleting(true);
-
             await deleteCustomer(customerToDelete.id);
-
             setCustomerToDelete(null);
         } catch {
             // The hook already stores the API error.
@@ -111,33 +100,32 @@ function Customers() {
 
     if (!hasPermission("Customer.View")) {
         return (
-            <div className="rounded-xl border border-slate-200 bg-white p-8 text-center">
-                <p className="text-sm font-medium text-slate-900">
+            <div className="rounded-xl border border-slate-200 bg-white p-8 text-center dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                     You do not have permission to view customers.
                 </p>
             </div>
         );
     }
 
+    const activeCustomers = customers.filter((customer) => customer.isActive);
+    const inactiveCustomers = customers.filter((customer) => !customer.isActive);
+
     return (
-        <div className="space-y-6">
-            {/* Header */}
+        <div className="min-w-0 space-y-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50">
-                            <Users className="h-5 w-5 text-indigo-600" />
-                        </div>
+                <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 dark:border-indigo-900/60 dark:bg-indigo-950/50">
+                        <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
 
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900">
-                                Customers
-                            </h1>
-
-                            <p className="mt-1 text-sm text-slate-500">
-                                Manage your customers and their contact information.
-                            </p>
-                        </div>
+                    <div className="min-w-0">
+                        <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl dark:text-slate-100">
+                            Customers
+                        </h1>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Manage your customers and their contact information.
+                        </p>
                     </div>
                 </div>
 
@@ -145,6 +133,7 @@ function Customers() {
                     <Button
                         type="button"
                         onClick={openCreateModal}
+                        className="w-full sm:w-auto"
                     >
                         <Plus className="h-4 w-4" />
                         Add Customer
@@ -152,57 +141,65 @@ function Customers() {
                 )}
             </div>
 
-            {/* Summary */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 <Card className="p-5">
-                    <p className="text-sm text-slate-500">
-                        Total Customers
-                    </p>
-
-                    <p className="mt-2 text-2xl font-bold text-slate-900">
-                        {customers.length}
-                    </p>
+                    <div className="flex items-center justify-between gap-4">
+                        <div>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                Total Customers
+                            </p>
+                            <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                                {customers.length}
+                            </p>
+                        </div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/50">
+                            <Users className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        </div>
+                    </div>
                 </Card>
 
                 <Card className="p-5">
-                    <p className="text-sm text-slate-500">
-                        Active Customers
-                    </p>
-
-                    <p className="mt-2 text-2xl font-bold text-slate-900">
-                        {
-                            customers.filter(
-                                (customer) =>
-                                    customer.isActive
-                            ).length
-                        }
-                    </p>
+                    <div className="flex items-center justify-between gap-4">
+                        <div>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                Active Customers
+                            </p>
+                            <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                                {activeCustomers.length}
+                            </p>
+                        </div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-50 dark:bg-emerald-950/40">
+                            <Users className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                    </div>
                 </Card>
 
-                <Card className="p-5">
-                    <p className="text-sm text-slate-500">
-                        Inactive Customers
-                    </p>
-
-                    <p className="mt-2 text-2xl font-bold text-slate-900">
-                        {
-                            customers.filter(
-                                (customer) =>
-                                    !customer.isActive
-                            ).length
-                        }
-                    </p>
+                <Card className="p-5 sm:col-span-2 xl:col-span-1">
+                    <div className="flex items-center justify-between gap-4">
+                        <div>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                                Inactive Customers
+                            </p>
+                            <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+                                {inactiveCustomers.length}
+                            </p>
+                        </div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                            <Users className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                        </div>
+                    </div>
                 </Card>
             </div>
 
-            {/* Error */}
             {error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div
+                    role="alert"
+                    className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+                >
                     {error}
                 </div>
             )}
 
-            {/* Table */}
             <CustomerTable
                 customers={customers}
                 loading={loading}
@@ -212,21 +209,15 @@ function Customers() {
                 onDelete={setCustomerToDelete}
             />
 
-            {/* Create / Edit Modal */}
             <Modal
                 isOpen={isFormOpen}
-                title={
-                    selectedCustomer
-                        ? "Edit Customer"
-                        : "Add Customer"
-                }
+                title={selectedCustomer ? "Edit Customer" : "Add Customer"}
                 description={
                     selectedCustomer
                         ? "Update customer information."
                         : "Add a new customer to your business."
                 }
                 onClose={closeFormModal}
-                maxWidth="max-w-2xl"
             >
                 <CustomerForm
                     customer={selectedCustomer}
@@ -236,7 +227,6 @@ function Customers() {
                 />
             </Modal>
 
-            {/* Delete Confirmation */}
             <ConfirmDialog
                 isOpen={Boolean(customerToDelete)}
                 title="Delete Customer"
@@ -245,14 +235,13 @@ function Customers() {
                         ? `Are you sure you want to delete ${customerToDelete.fullName}? This action cannot be undone.`
                         : ""
                 }
-                confirmText="Delete"
                 loading={deleting}
                 onConfirm={handleDelete}
-                onCancel={() =>
-                    deleting
-                        ? undefined
-                        : setCustomerToDelete(null)
-                }
+                onCancel={() => {
+                    if (!deleting) {
+                        setCustomerToDelete(null);
+                    }
+                }}
             />
         </div>
     );

@@ -4,7 +4,7 @@ namespace BusinessPlatform.Application.Interfaces.Product_Module
 {
     public interface IProductRepository
     {
-        Task<List<Product>> GetAllAsync();
+        Task<List<Product>> GetAllAsync(Guid? categoryId = null);
         Task<Product?> GetByIdAsync(Guid id);
 
         Task<Product?> GetBySkuAsync(string sku);

@@ -1,5 +1,7 @@
+
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
+import { SlidersHorizontal } from "lucide-react";
 
 import type { Inventory } from "../../types/Inventory/inventory.types";
 
@@ -33,18 +35,9 @@ function InventorySettingsModal({
 
     useEffect(() => {
         if (inventory && isOpen) {
-            setMinimumStock(
-                String(inventory.minimumStock)
-            );
-
-            setMaximumStock(
-                String(inventory.maximumStock)
-            );
-
-            setReorderLevel(
-                String(inventory.reorderLevel)
-            );
-
+            setMinimumStock(String(inventory.minimumStock));
+            setMaximumStock(String(inventory.maximumStock));
+            setReorderLevel(String(inventory.reorderLevel));
             setError("");
         }
     }, [inventory, isOpen]);
@@ -63,6 +56,9 @@ function InventorySettingsModal({
         const reorder = Number(reorderLevel);
 
         if (
+            minimumStock === "" ||
+            maximumStock === "" ||
+            reorderLevel === "" ||
             Number.isNaN(minimum) ||
             Number.isNaN(maximum) ||
             Number.isNaN(reorder) ||
@@ -75,97 +71,99 @@ function InventorySettingsModal({
         }
 
         if (minimum > maximum) {
-            setError(
-                "Minimum stock cannot exceed maximum stock."
-            );
+            setError("Minimum stock cannot exceed maximum stock.");
             return;
         }
 
         if (reorder > maximum) {
-            setError(
-                "Reorder level cannot exceed maximum stock."
-            );
+            setError("Reorder level cannot exceed maximum stock.");
             return;
         }
 
         setError("");
 
-        await onSubmit(
-            minimum,
-            maximum,
-            reorder
-        );
+        await onSubmit(minimum, maximum, reorder);
     };
 
     return (
         <Modal
             isOpen={isOpen}
-            title="Inventory Settings"
+            title="Inventory settings"
             description={`Configure stock limits for ${inventory.productName}.`}
             onClose={onClose}
-            maxWidth="max-w-md"
         >
-            <form
-                onSubmit={handleSubmit}
-                className="space-y-5"
-            >
-                <Input
-                    id="minimumStock"
-                    label="Minimum Stock"
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={minimumStock}
-                    onChange={(event) =>
-                        setMinimumStock(
-                            event.target.value
-                        )
-                    }
-                    disabled={loading}
-                />
+            <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/70">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-400">
+                        <SlidersHorizontal className="h-5 w-5" />
+                    </div>
 
-                <Input
-                    id="maximumStock"
-                    label="Maximum Stock"
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={maximumStock}
-                    onChange={(event) =>
-                        setMaximumStock(
-                            event.target.value
-                        )
-                    }
-                    disabled={loading}
-                />
+                    <div className="min-w-0">
+                        <p className="break-words text-sm font-semibold text-slate-900 dark:text-slate-100">
+                            {inventory.productName}
+                        </p>
+                        <p className="mt-1 break-all font-mono text-xs text-slate-500 dark:text-slate-400">
+                            SKU: {inventory.sku}
+                        </p>
+                        <p className="mt-2 text-xs text-slate-600 dark:text-slate-300">
+                            Current stock:{" "}
+                            <span className="font-semibold tabular-nums text-slate-900 dark:text-slate-100">
+                                {inventory.quantityInStock}
+                            </span>
+                        </p>
+                    </div>
+                </div>
 
-                <Input
-                    id="reorderLevel"
-                    label="Reorder Level"
-                    type="number"
-                    min="0"
-                    step="1"
-                    value={reorderLevel}
-                    onChange={(event) =>
-                        setReorderLevel(
-                            event.target.value
-                        )
-                    }
-                    disabled={loading}
-                />
+                <div className="space-y-4">
+                    <Input
+                        id="minimumStock"
+                        label="Minimum stock"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={minimumStock}
+                        onChange={(event) => setMinimumStock(event.target.value)}
+                        disabled={loading}
+                    />
+
+                    <Input
+                        id="maximumStock"
+                        label="Maximum stock"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={maximumStock}
+                        onChange={(event) => setMaximumStock(event.target.value)}
+                        disabled={loading}
+                    />
+
+                    <Input
+                        id="reorderLevel"
+                        label="Reorder level"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value={reorderLevel}
+                        onChange={(event) => setReorderLevel(event.target.value)}
+                        disabled={loading}
+                    />
+                </div>
 
                 {error && (
-                    <p className="text-sm text-red-600">
+                    <div
+                        role="alert"
+                        className="rounded-lg border border-red-200 bg-red-50 px-3 py-2.5 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300"
+                    >
                         {error}
-                    </p>
+                    </div>
                 )}
 
-                <div className="flex justify-end gap-3 border-t border-slate-200 pt-5">
+                <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
                     <Button
                         type="button"
                         onClick={onClose}
                         disabled={loading}
-                        className="bg-slate-100 text-slate-700 hover:bg-slate-200"
+                        className="!w-full !bg-white !text-slate-700 !border !border-slate-300 hover:!bg-slate-50 sm:!w-auto dark:!bg-slate-900 dark:!text-slate-200 dark:!border-slate-700 dark:hover:!bg-slate-800"
                     >
                         Cancel
                     </Button>
@@ -173,8 +171,9 @@ function InventorySettingsModal({
                     <Button
                         type="submit"
                         loading={loading}
+                        className="!w-full sm:!w-auto"
                     >
-                        Save Settings
+                        Save settings
                     </Button>
                 </div>
             </form>

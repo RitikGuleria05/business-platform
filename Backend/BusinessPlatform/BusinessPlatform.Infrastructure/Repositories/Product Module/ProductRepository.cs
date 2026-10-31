@@ -21,12 +21,19 @@ namespace BusinessPlatform.Infrastructure.Repositories.Product_Module
             _context = context;
         }
 
-        public async Task<List<Product>> GetAllAsync()
+        public async Task<List<Product>> GetAllAsync(Guid? categoryId = null)
         {
-            return await _context.Products
+            var query = _context.Products
                 .Include(x => x.Category)
                 .Include(x => x.Inventory)
-                .Where(x => x.IsActive)
+                .Where(x => x.IsActive);
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(x => x.CategoryId == categoryId.Value);
+            }
+
+            return await query
                 .AsNoTracking()
                 .OrderBy(x => x.Name)
                 .ToListAsync();
@@ -37,7 +44,7 @@ namespace BusinessPlatform.Infrastructure.Repositories.Product_Module
             return await _context.Products
                 .Include(x => x.Category)
                 .Include(x => x.Inventory)
-                .FirstOrDefaultAsync(x => x.Id == id && x.IsActive);
+                .FirstOrDefaultAsync(x => x.Id == id);// we removed filetering of isactive
         }
 
         public async Task<Product?> GetBySkuAsync(string sku)

@@ -23,23 +23,17 @@ namespace BusinessPlatform.Infrastructure.Extensions
     public static class InfrastructureServiceExtensions
     {
 
-        public static IServiceCollection AddInfrastructure(
-            this IServiceCollection services,
-            IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(this IServiceCollection services,IConfiguration configuration)
         {
 
 
             services.AddDbContext<AppDbContext>(options =>
             {
 
-                var connectionString =
-                    configuration.GetConnectionString("ConnStr");
+                var connectionString = configuration.GetConnectionString("ConnStr");
 
 
-                options.UseMySql(
-                    connectionString,
-                    ServerVersion.AutoDetect(connectionString)
-                );
+                options.UseMySql(connectionString,ServerVersion.AutoDetect(connectionString));
 
             });
 

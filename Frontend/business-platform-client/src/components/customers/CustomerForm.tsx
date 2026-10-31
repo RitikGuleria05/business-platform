@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
-import type { Customer, CreateCustomerRequest, UpdateCustomerRequest } from "../../types/Customers/customer.types";
+import type {
+    Customer,
+    CreateCustomerRequest,
+    UpdateCustomerRequest,
+} from "../../types/Customers/customer.types";
 
 interface CustomerFormProps {
     customer?: Customer | null;
@@ -24,6 +28,18 @@ interface FormData {
     isActive: boolean;
 }
 
+const initialFormData: FormData = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    address: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    isActive: true,
+};
+
 function CustomerForm({
     customer,
     loading = false,
@@ -33,18 +49,14 @@ function CustomerForm({
     const isEditMode = Boolean(customer);
 
     const [formData, setFormData] = useState<FormData>({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phoneNumber: "",
-        address: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        isActive: true,
+        ...initialFormData,
     });
 
-    const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+    const [errors, setErrors] = useState<
+        Partial<Record<keyof FormData, string>>
+    >({});
+
+    const [currentStep, setCurrentStep] = useState(0);
 
     useEffect(() => {
         if (customer) {
@@ -60,23 +72,16 @@ function CustomerForm({
                 isActive: customer.isActive,
             });
         } else {
-            setFormData({
-                firstName: "",
-                lastName: "",
-                email: "",
-                phoneNumber: "",
-                address: "",
-                city: "",
-                state: "",
-                postalCode: "",
-                isActive: true,
-            });
+            setFormData({ ...initialFormData });
         }
 
         setErrors({});
+        setCurrentStep(0);
     }, [customer]);
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         const target = event.target;
 
         if (
@@ -116,16 +121,13 @@ function CustomerForm({
         if (!formData.email.trim()) {
             newErrors.email = "Email is required.";
         } else if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-                formData.email
-            )
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
         ) {
             newErrors.email = "Enter a valid email.";
         }
 
         if (!formData.phoneNumber.trim()) {
-            newErrors.phoneNumber =
-                "Phone number is required.";
+            newErrors.phoneNumber = "Phone number is required.";
         }
 
         setErrors(newErrors);
@@ -137,6 +139,7 @@ function CustomerForm({
         event.preventDefault();
 
         if (!validate()) {
+            setCurrentStep(0);
             return;
         }
 
@@ -148,8 +151,7 @@ function CustomerForm({
             address: formData.address.trim() || null,
             city: formData.city.trim() || null,
             state: formData.state.trim() || null,
-            postalCode:
-                formData.postalCode.trim() || null,
+            postalCode: formData.postalCode.trim() || null,
         };
 
         if (isEditMode) {
@@ -164,132 +166,200 @@ function CustomerForm({
         await onSubmit(baseData);
     };
 
+    const goToNextStep = () => {
+        setCurrentStep(1);
+    };
+
+    const goToPreviousStep = () => {
+        setCurrentStep(0);
+    };
+
+    const steps = ["Personal", "Address"];
+
     return (
         <form
             onSubmit={handleSubmit}
-            className="space-y-6"
+            className="flex min-w-0 flex-col gap-5"
         >
-            <div>
-                <h3 className="text-sm font-semibold text-slate-900">
-                    Personal Information
-                </h3>
+            {/* Progress indicator */}
+            <div
+                className="grid grid-cols-3 gap-3"
+                aria-label="Customer form progress"
+            >
+                {steps.map((step, index) => (
+                    <div key={step} className="min-w-0">
+                        <div
+                            className={`h-1.5 rounded-full transition-colors duration-200 ${index <= currentStep
+                                ? "bg-indigo-600"
+                                : "bg-slate-200 dark:bg-slate-700"
+                                }`}
+                        />
 
-                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <Input
-                        id="firstName"
-                        name="firstName"
-                        label="First Name"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        error={errors.firstName}
-                    />
-
-                    <Input
-                        id="lastName"
-                        name="lastName"
-                        label="Last Name"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        error={errors.lastName}
-                    />
-
-                    <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        label="Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        error={errors.email}
-                    />
-
-                    <Input
-                        id="phoneNumber"
-                        name="phoneNumber"
-                        label="Phone Number"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        error={errors.phoneNumber}
-                    />
-                </div>
+                        <p
+                            className={`mt-2 truncate text-xs font-medium sm:text-sm ${index === currentStep
+                                ? "text-indigo-600 dark:text-indigo-400"
+                                : "text-slate-500 dark:text-slate-400"
+                                }`}
+                        >
+                            {index + 1}. {step}
+                        </p>
+                    </div>
+                ))}
             </div>
 
-            <div>
-                <h3 className="text-sm font-semibold text-slate-900">
-                    Address
-                </h3>
+            {/* Step 1: Personal information */}
+            {currentStep === 0 && (
+                <section className="min-w-0 space-y-4">
+                    <div>
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                            Personal Information
+                        </h3>
 
-                <div className="mt-4 space-y-4">
-                    <Input
-                        id="address"
-                        name="address"
-                        label="Address"
-                        value={formData.address}
-                        onChange={handleChange}
-                    />
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Enter the customer's contact details.
+                        </p>
+                    </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
                         <Input
-                            id="city"
-                            name="city"
-                            label="City"
-                            value={formData.city}
+                            id="firstName"
+                            name="firstName"
+                            label="First Name"
+                            value={formData.firstName}
                             onChange={handleChange}
+                            error={errors.firstName}
                         />
 
                         <Input
-                            id="state"
-                            name="state"
-                            label="State"
-                            value={formData.state}
+                            id="lastName"
+                            name="lastName"
+                            label="Last Name"
+                            value={formData.lastName}
                             onChange={handleChange}
+                            error={errors.lastName}
                         />
 
                         <Input
-                            id="postalCode"
-                            name="postalCode"
-                            label="Postal Code"
-                            value={formData.postalCode}
+                            id="email"
+                            name="email"
+                            type="email"
+                            label="Email"
+                            value={formData.email}
                             onChange={handleChange}
+                            error={errors.email}
+                        />
+
+                        <Input
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            label="Phone Number"
+                            value={formData.phoneNumber}
+                            onChange={handleChange}
+                            error={errors.phoneNumber}
                         />
                     </div>
-                </div>
-            </div>
-
-            {isEditMode && (
-                <label className="flex items-center gap-3">
-                    <input
-                        type="checkbox"
-                        name="isActive"
-                        checked={formData.isActive}
-                        onChange={handleChange}
-                        className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                    />
-
-                    <span className="text-sm font-medium text-slate-700">
-                        Active customer
-                    </span>
-                </label>
+                </section>
             )}
 
-            <div className="flex justify-end gap-3 border-t border-slate-200 pt-5">
-                <Button
-                    type="button"
-                    onClick={onCancel}
-                    disabled={loading}
-                    className="bg-slate-100 text-slate-700 hover:bg-slate-200"
-                >
-                    Cancel
-                </Button>
+            {/* Step 2: Address */}
+            {currentStep === 1 && (
+                <section className="min-w-0 space-y-4">
+                    <div>
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                            Address
+                        </h3>
 
-                <Button
-                    type="submit"
-                    loading={loading}
-                >
-                    {isEditMode
-                        ? "Update Customer"
-                        : "Create Customer"}
-                </Button>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                            Add the customer's location information.
+                        </p>
+                    </div>
+
+                    <div className="min-w-0 space-y-4">
+                        <Input
+                            id="address"
+                            name="address"
+                            label="Address"
+                            value={formData.address}
+                            onChange={handleChange}
+                        />
+
+                        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+                            <Input
+                                id="city"
+                                name="city"
+                                label="City"
+                                value={formData.city}
+                                onChange={handleChange}
+                            />
+
+                            <Input
+                                id="state"
+                                name="state"
+                                label="State"
+                                value={formData.state}
+                                onChange={handleChange}
+                            />
+
+                            <div className="min-w-0 sm:col-span-2">
+                                <Input
+                                    id="postalCode"
+                                    name="postalCode"
+                                    label="Postal Code"
+                                    value={formData.postalCode}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+
+            {/* Form actions */}
+            <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:justify-between">
+                <div className="flex flex-col-reverse gap-3 sm:flex-row">
+                    <Button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={loading}
+                        className="w-full sm:w-auto"
+                    >
+                        Cancel
+                    </Button>
+
+                    {currentStep === 1 && (
+                        <Button
+                            type="button"
+                            onClick={goToPreviousStep}
+                            disabled={loading}
+                            className="w-full sm:w-auto"
+                        >
+                            Back
+                        </Button>
+                    )}
+                </div>
+
+                {currentStep === 0 ? (
+                    <button
+                        type="button"
+                        onClick={() => {
+                            console.log("Continue clicked");
+                            setCurrentStep(1);
+                        }}
+                        disabled={loading}
+                        className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 sm:w-auto"
+                    >
+                        Continue
+                    </button>
+                ) : (
+                    <Button
+                        type="submit"
+                        loading={loading}
+                        className="w-full sm:w-auto"
+                    >
+                        {isEditMode ? "Update Customer" : "Create Customer"}
+                    </Button>
+                )}
             </div>
         </form>
     );

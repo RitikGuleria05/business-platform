@@ -5,14 +5,10 @@ import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
 import CategoryTable from "../../components/categories/CategoryTable";
-import CategoryForm from "../../components/categories/CategoryForm.tsx";
-import { useCategories } from "../../hooks/categories/useCategories";
-import type {
-    Category,
-    CreateCategoryRequest,
-    UpdateCategoryRequest,
-} from "../../types/Categories/category.types.ts";
-import { useAuth } from "../../hooks/auth/AuthContext.tsx";
+import CategoryForm from "../../components/categories/CategoryForm";
+import { useCategories } from "../../hooks/categories/useCategories.ts";
+import type {Category,CreateCategoryRequest,UpdateCategoryRequest} from "../../types/Categories/category.types.ts";
+import { useAuth } from "../../hooks/auth/useAuth";
 
 function Categories() {
     const {
@@ -27,23 +23,19 @@ function Categories() {
     const { hasPermission } = useAuth();
 
     const canViewCategories = hasPermission("Category.View");
-
     const canCreateCategory = hasPermission("Category.Create");
-
-    const canEditCategory =  hasPermission("Category.Edit");
-
+    const canEditCategory = hasPermission("Category.Edit");
     const canDeleteCategory = hasPermission("Category.Delete");
 
-    const [isFormOpen, setIsFormOpen] =  useState(false);
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [selectedCategory, setSelectedCategory] =
+        useState<Category | null>(null);
 
-    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-
-    const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
+    const [categoryToDelete, setCategoryToDelete] =
+        useState<Category | null>(null);
 
     const [formLoading, setFormLoading] = useState(false);
-
     const [deleteLoading, setDeleteLoading] = useState(false);
-
     const [actionError, setActionError] = useState<string | null>(null);
 
     const handleCreate = () => {
@@ -65,37 +57,36 @@ function Categories() {
 
         setIsFormOpen(false);
         setSelectedCategory(null);
+        setActionError(null);
     };
 
-    const handleSubmit = async (request: | CreateCategoryRequest | UpdateCategoryRequest) => {
+    const handleSubmit = async (data: CreateCategoryRequest | UpdateCategoryRequest) => {
         try {
             setFormLoading(true);
             setActionError(null);
 
             if (selectedCategory) {
-                await editCategory(
-                    selectedCategory.id,
-                    request as UpdateCategoryRequest
-                );
+                await editCategory(selectedCategory.id, data as UpdateCategoryRequest);
             } else {
-                await addCategory(
-                    request as CreateCategoryRequest
-                );
+                await addCategory(data as CreateCategoryRequest);
             }
 
             setIsFormOpen(false);
             setSelectedCategory(null);
-        } catch (error) {
-            // The hook already stores the API error.
-            // We keep the modal open so the user can correct/retry.
+        } catch (err) {
+            setActionError(
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong."
+            );
         } finally {
             setFormLoading(false);
         }
     };
 
     const handleDeleteRequest = (category: Category) => {
-        setActionError(null);
         setCategoryToDelete(category);
+        setActionError(null);
     };
 
     const handleDelete = async () => {
@@ -107,14 +98,14 @@ function Categories() {
             setDeleteLoading(true);
             setActionError(null);
 
-            await removeCategory(
-                categoryToDelete.id
-            );
+            await removeCategory(categoryToDelete.id);
 
             setCategoryToDelete(null);
-        } catch (error) {
+        } catch (err) {
             setActionError(
-                "Unable to delete this category."
+                err instanceof Error
+                    ? err.message
+                    : "Something went wrong."
             );
         } finally {
             setDeleteLoading(false);
@@ -122,15 +113,14 @@ function Categories() {
     };
 
     return (
-        <div className="min-w-0 space-y-6">
-            {/* Page Header */}
+        <div className="min-w-0 space-y-5">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                    <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">
+                    <h1 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-2xl">
                         Categories
                     </h1>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                         Manage product categories.
                     </p>
                 </div>
@@ -147,17 +137,15 @@ function Categories() {
                 )}
             </div>
 
-            {/* Error */}
             {(error || actionError) && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3">
-                    <p className="text-sm leading-5 text-red-700">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-900/70 dark:bg-red-950/40">
+                    <p className="text-sm leading-5 text-red-700 dark:text-red-300">
                         {actionError ?? error}
                     </p>
                 </div>
             )}
 
-            {/* Categories */}
-            <Card className="min-w-0 overflow-hidden p-0">
+            <Card className="!overflow-hidden !p-0">
                 <CategoryTable
                     categories={categories}
                     loading={loading}
@@ -168,9 +156,9 @@ function Categories() {
                 />
             </Card>
 
-            {/* Create / Edit Modal */}
             <Modal
                 isOpen={isFormOpen}
+                onClose={handleCloseForm}
                 title={
                     selectedCategory
                         ? "Edit Category"
@@ -178,35 +166,31 @@ function Categories() {
                 }
                 description={
                     selectedCategory
-                        ? "Update the category details."
+                        ? "Update the category information."
                         : "Add a new product category."
                 }
-                onClose={handleCloseForm}
+                maxWidth="max-w-lg"
             >
                 <CategoryForm
                     category={selectedCategory}
-                    loading={formLoading}
                     onSubmit={handleSubmit}
                     onCancel={handleCloseForm}
+                    loading={formLoading}
+                    error={actionError}
                 />
             </Modal>
 
-            {/* Delete Confirmation */}
             <ConfirmDialog
                 isOpen={Boolean(categoryToDelete)}
                 title="Delete Category"
-                message={
-                    categoryToDelete
-                        ? `Are you sure you want to delete "${categoryToDelete.name}"? This action cannot be undone.`
-                        : ""
-                }
-                confirmText="Delete"
-                loading={deleteLoading}
+                message={`Are you sure you want to delete "${categoryToDelete?.name}"? This action cannot be undone.`}
                 onConfirm={handleDelete}
-                onCancel={() =>
-                    !deleteLoading &&
-                    setCategoryToDelete(null)
-                }
+                onCancel={() => {
+                    if (!deleteLoading) {
+                        setCategoryToDelete(null);
+                    }
+                }}
+                loading={deleteLoading}
             />
         </div>
     );

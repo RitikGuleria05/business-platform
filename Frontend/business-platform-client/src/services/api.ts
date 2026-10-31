@@ -89,8 +89,9 @@ api.interceptors.response.use(
             return api(originalRequest);
         } catch (refreshError) {
             refreshPromise = null;
-
             authStorage.clear();
+
+            window.location.href = "/login";
 
             return Promise.reject(refreshError);
         }

@@ -28,10 +28,8 @@ namespace BusinessPlatform.Application.DTOs.Sale_Module
 
         public string? Remarks { get; set; }
 
-        public List<SaleItemResponse> Items { get; set; }
-            = new();
+        public List<SaleItemResponse> Items { get; set; } = new();
 
-        public List<PaymentResponse> Payments { get; set; }
-            = new();
+        public List<PaymentResponse> Payments { get; set; } = new();
     }
 }

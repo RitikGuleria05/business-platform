@@ -17,7 +17,7 @@ namespace BusinessPlatform.API.Controllers
             _authService = authService;
         }
 
-
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Registor(RegisterRequest request)
         {
@@ -29,7 +29,7 @@ namespace BusinessPlatform.API.Controllers
             });
         }
 
-
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
@@ -55,7 +55,7 @@ namespace BusinessPlatform.API.Controllers
             });
         }
 
-
+        [AllowAnonymous]
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
@@ -92,7 +92,7 @@ namespace BusinessPlatform.API.Controllers
             });
         }
 
-
+        [AllowAnonymous]
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
@@ -103,8 +103,7 @@ namespace BusinessPlatform.API.Controllers
                 await _authService.LogoutAsync(refreshToken);
             }
 
-            Response.Cookies.Delete(
-                "refreshToken",
+            Response.Cookies.Delete("refreshToken",
                 new CookieOptions
                 {
                     Secure = true,
@@ -125,9 +124,7 @@ namespace BusinessPlatform.API.Controllers
         {
             var userIdClaim = User.FindFirst("id")?.Value;
 
-            if (!Guid.TryParse(
-                    userIdClaim,
-                    out var userId))
+            if (!Guid.TryParse(userIdClaim,out var userId))
             {
                 return Unauthorized();
             }

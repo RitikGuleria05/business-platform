@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.22" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.22" />
+		<PackageReference Include="Moq" Version="4.21.0" />
+		<PackageReference Include="xunit.v3" Version="4.0.2" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BusinessPlatform.Application\BusinessPlatform.Application.csproj" />
+		<ProjectReference Include="..\BusinessPlatform.Domain\BusinessPlatform.Domain.csproj" />
+		<ProjectReference Include="..\BusinessPlatform.Infrastructure\BusinessPlatform.Infrastructure.csproj" />
+		<ProjectReference Include="..\BusinessPlatform\BusinessPlatform.API.csproj" />
+	</ItemGroup>
+
+</Project>

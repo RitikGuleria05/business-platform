@@ -1,7 +1,6 @@
 import type { InputHTMLAttributes } from "react";
 
-interface InputProps
-    extends InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: string;
 }
@@ -17,7 +16,7 @@ function Input({
             {label && (
                 <label
                     htmlFor={props.id}
-                    className="mb-1.5 block text-sm font-medium text-slate-700"
+                    className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
                 >
                     {label}
                 </label>
@@ -44,20 +43,33 @@ function Input({
                     focus:border-indigo-500
                     focus:ring-2
                     focus:ring-indigo-500/20
+
+                    dark:border-slate-600
+                    dark:bg-slate-800
+                    dark:text-slate-100
+                    dark:placeholder:text-slate-500
+                    dark:hover:border-slate-500
+                    dark:focus:border-indigo-400
+                    dark:focus:ring-indigo-400/20
+
                     disabled:cursor-not-allowed
                     disabled:bg-slate-50
                     disabled:text-slate-400
+                    dark:disabled:bg-slate-900
+                    dark:disabled:text-slate-500
+
                     ${
                         error
-                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/20"
+                            ? "border-red-400 focus:border-red-500 focus:ring-red-500/20 dark:border-red-500 dark:focus:border-red-400"
                             : ""
                     }
+
                     ${className}
                 `}
             />
 
             {error && (
-                <p className="mt-1.5 text-xs leading-4 text-red-600">
+                <p className="mt-1.5 text-xs leading-4 text-red-600 dark:text-red-400">
                     {error}
                 </p>
             )}

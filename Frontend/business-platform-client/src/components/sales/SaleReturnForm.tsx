@@ -152,17 +152,17 @@ export default function SaleReturnForm({
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="rounded-lg border border-gray-200 p-2 hover:bg-gray-50"
+                    className="rounded-lg border border-slate-200 dark:border-slate-800 p-2 hover:bg-slate-50 dark:hover:bg-slate-800"
                 >
                     <ArrowLeft size={20} />
                 </button>
 
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">
+                    <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                         Create Sale Return
                     </h1>
 
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Invoice: {sale.invoiceNumber}
                     </p>
                 </div>
@@ -174,8 +174,8 @@ export default function SaleReturnForm({
             >
                 {/* Products */}
 
-                <div className="rounded-xl border border-gray-200 bg-white">
-                    <div className="border-b border-gray-200 p-5">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                    <div className="border-b border-slate-200 dark:border-slate-800 p-5">
                         <div className="flex items-center gap-2">
                             <RotateCcw size={20} />
 
@@ -188,7 +188,7 @@ export default function SaleReturnForm({
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b bg-gray-50 text-left text-sm text-gray-500">
+                                <tr className="border-b bg-slate-50 dark:bg-slate-800 text-left text-sm text-slate-500 dark:text-slate-400">
                                     <th className="px-5 py-3">
                                         Product
                                     </th>
@@ -219,7 +219,7 @@ export default function SaleReturnForm({
                                             className="border-b last:border-0"
                                         >
                                             <td className="px-5 py-4">
-                                                <p className="font-medium text-gray-900">
+                                                <p className="font-medium text-slate-900 dark:text-slate-100">
                                                     {item.productName}
                                                 </p>
                                             </td>
@@ -252,7 +252,7 @@ export default function SaleReturnForm({
                                                             Number(e.target.value)
                                                         )
                                                     }
-                                                    className="w-24 rounded-lg border border-gray-300 px-3 py-2"
+                                                    className="w-24 rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2"
                                                 />
                                             </td>
 
@@ -269,8 +269,8 @@ export default function SaleReturnForm({
 
                 {/* Reason */}
 
-                <div className="rounded-xl border border-gray-200 bg-white p-5">
-                    <label className="mb-2 block text-sm font-medium text-gray-700">
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
+                    <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200 dark:text-slate-300">
                         Reason
                     </label>
 
@@ -281,15 +281,15 @@ export default function SaleReturnForm({
                         }
                         rows={4}
                         placeholder="Enter return reason..."
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:border-gray-500"
+                        className="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 outline-none focus:border-gray-500"
                     />
                 </div>
 
                 {/* Summary */}
 
-                <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-5">
+                <div className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
                     <div>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             Return Amount
                         </p>
 
@@ -298,11 +298,11 @@ export default function SaleReturnForm({
                         </p>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col-reverse gap-3 sm:flex-row">
                         <button
                             type="button"
                             onClick={onCancel}
-                            className="rounded-lg border border-gray-300 px-5 py-2.5 font-medium hover:bg-gray-50"
+                            className="rounded-lg border border-slate-300 dark:border-slate-700 px-5 py-2.5 font-medium hover:bg-slate-50 dark:hover:bg-slate-800"
                         >
                             Cancel
                         </button>
@@ -313,7 +313,7 @@ export default function SaleReturnForm({
                                 loading ||
                                 selectedItems.length === 0
                             }
-                            className="rounded-lg bg-black px-5 py-2.5 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
+                            className="rounded-lg bg-indigo-600 dark:bg-indigo-500 px-5 py-2.5 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
                         >
                             {loading
                                 ? "Processing..."
@@ -323,7 +323,7 @@ export default function SaleReturnForm({
                 </div>
 
                 {error && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+                    <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-4 text-sm text-red-600 dark:text-red-400">
                         {error}
                     </div>
                 )}

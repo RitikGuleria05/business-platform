@@ -1,4 +1,5 @@
 export interface Category {
+    createdAt: string | number | Date;
     id: string;
     name: string;
     description?: string | null;
