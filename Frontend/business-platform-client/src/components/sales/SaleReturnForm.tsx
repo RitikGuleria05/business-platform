@@ -75,7 +75,7 @@ export default function SaleReturnForm({
         const initialItems = sale.items.map((item) => {
             const alreadyReturned = returnedQuantities.get(item.productId) ?? 0;
 
-            const remaining = item.quantity - alreadyReturned;
+            // const remaining = item.quantity - alreadyReturned;
 
             return {
                 productId: item.productId,

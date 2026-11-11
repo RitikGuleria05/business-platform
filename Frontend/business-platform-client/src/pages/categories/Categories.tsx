@@ -22,7 +22,7 @@ function Categories() {
 
     const { hasPermission } = useAuth();
 
-    const canViewCategories = hasPermission("Category.View");
+    // const canViewCategories = hasPermission("Category.View");
     const canCreateCategory = hasPermission("Category.Create");
     const canEditCategory = hasPermission("Category.Edit");
     const canDeleteCategory = hasPermission("Category.Delete");

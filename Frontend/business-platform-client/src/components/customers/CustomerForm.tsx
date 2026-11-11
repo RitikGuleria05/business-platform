@@ -166,9 +166,9 @@ function CustomerForm({
         await onSubmit(baseData);
     };
 
-    const goToNextStep = () => {
-        setCurrentStep(1);
-    };
+    // const goToNextStep = () => {
+    //     setCurrentStep(1);
+    // };
 
     const goToPreviousStep = () => {
         setCurrentStep(0);

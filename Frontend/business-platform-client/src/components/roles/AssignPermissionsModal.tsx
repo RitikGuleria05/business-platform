@@ -2,7 +2,6 @@
 import { useState, useEffect, useMemo } from "react";
 import Card from "../ui/Card";
 import Button from "../ui/Button";
-import { roleApi } from "../../services/roles/roleApi";
 import type { Role, PermissionResponse } from "../../types/roles/role";
 
 interface Props {
