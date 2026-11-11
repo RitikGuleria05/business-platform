@@ -5,6 +5,7 @@ using BusinessPlatform.Domain.Entities;
 using Moq;
 using Xunit;
 using BusinessPlatform.Application.Services.Turnstile;
+using BusinessPlatform.Domain.Exceptions;
 
 namespace BusinessPlatform.Tests;
 
@@ -44,7 +45,7 @@ public class AuthServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(() => service.RegistorAsync(request));
+        var exception = await Assert.ThrowsAsync<BadRequestException>(() => service.RegistorAsync(request));
 
         // Assert
         Assert.Equal("Security verification failed", exception.Message);
@@ -82,7 +83,7 @@ public class AuthServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(() => service.RegistorAsync(request));
+        var exception = await Assert.ThrowsAsync<BadRequestException>(() => service.RegistorAsync(request));
 
         // Assert
         Assert.Equal("User already exists", exception.Message);
@@ -110,9 +111,7 @@ public class AuthServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
-            () => service.LoginAsync(request)
-        );
+        var exception = await Assert.ThrowsAsync<UnauthorizedException>(() => service.LoginAsync(request));
 
         // Assert
         Assert.Equal("Invalid email or password", exception.Message);
@@ -150,7 +149,7 @@ public class AuthServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<UnauthorizedException>(
             () => service.LoginAsync(request)
         );
 
@@ -190,9 +189,7 @@ public class AuthServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
-            () => service.LoginAsync(request)
-        );
+        var exception = await Assert.ThrowsAsync<ForbiddenException>(() => service.LoginAsync(request));
 
         // Assert
         Assert.Equal("User account is inactive", exception.Message);
@@ -546,9 +543,7 @@ public class AuthServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
-            () => service.RefreshTokenAsync("invalid-token")
-        );
+        var exception = await Assert.ThrowsAsync<UnauthorizedException>(() => service.RefreshTokenAsync("invalid-token"));
 
         // Assert
         Assert.Equal(
@@ -581,12 +576,12 @@ public class AuthServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<UnauthorizedException>(
             () => service.RefreshTokenAsync(oldToken.Token)
         );
 
         // Assert
-        Assert.Equal("User not found", exception.Message);
+        Assert.Equal("Invalid, expired, or revoked refresh token", exception.Message);
 
         _refreshTokenRepository.Verify(
             x => x.RevokeAsync(It.IsAny<RefreshToken>()),
@@ -622,9 +617,7 @@ public class AuthServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
-            () => service.RefreshTokenAsync(oldToken.Token)
-        );
+        var exception = await Assert.ThrowsAsync<ForbiddenException>(() => service.RefreshTokenAsync(oldToken.Token));
 
         // Assert
         Assert.Equal("User account is inactive", exception.Message);

@@ -6,6 +6,7 @@ using BusinessPlatform.Application.DTOs;
 using Moq;
 using Xunit;
 using BusinessPlatform.Application.DTOs.Permission;
+using BusinessPlatform.Domain.Exceptions;
 
 namespace BusinessPlatform.Tests.Unit_Tests;
 
@@ -79,7 +80,7 @@ public class PermissionServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<NotFoundException>(
             () => service.GetByIdAsync(permissionId)
         );
 
@@ -141,7 +142,7 @@ public class PermissionServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<BadRequestException>(
             () => service.CreateAsync(request)
         );
 
@@ -175,7 +176,7 @@ public class PermissionServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<NotFoundException>(
             () => service.CreateAsync(request)
         );
 
@@ -255,7 +256,7 @@ public class PermissionServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<NotFoundException>(
             () => service.UpdateAsync(permissionId, request)
         );
 
@@ -303,7 +304,7 @@ public class PermissionServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<NotFoundException>(
             () => service.UpdateAsync(permissionId, request)
         );
 
@@ -339,7 +340,7 @@ public class PermissionServiceTests
         var service = CreateService();
 
         // Act
-        var exception = await Assert.ThrowsAsync<Exception>(
+        var exception = await Assert.ThrowsAsync<BadRequestException>(
             () => service.DeleteAsync(permissionId)
         );
 

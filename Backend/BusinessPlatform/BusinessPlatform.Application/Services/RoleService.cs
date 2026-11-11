@@ -1,6 +1,7 @@
 ﻿using BusinessPlatform.Application.DTOs.Role;
 using BusinessPlatform.Application.Interfaces;
 using BusinessPlatform.Domain.Entities;
+using BusinessPlatform.Domain.Exceptions;
 
 namespace BusinessPlatform.Application.Services
 {
@@ -28,12 +29,12 @@ namespace BusinessPlatform.Application.Services
 
         public async Task<RoleResponse> CreateAsync(CreateRoleRequest request)
         {
-            var existingRole = await _roleRepository.GetByNameAsync(request.Name);
+            var roleName = request.Name.Trim();
+
+            var existingRole = await _roleRepository.GetByNameAsync(roleName);
 
             if (existingRole != null)
-            {
-                throw new Exception("Role already exists.");
-            }
+                throw new BadRequestException("Role already exists.");
 
             var role = new Role
             {
@@ -60,7 +61,7 @@ namespace BusinessPlatform.Application.Services
 
             if (role == null)
             {
-                throw new Exception("Role not found.");
+                throw new NotFoundException("Role not found.");
             }
 
             return new RoleResponse
@@ -75,7 +76,7 @@ namespace BusinessPlatform.Application.Services
             var role = await _roleRepository.GetByIdAsync(id);
 
             if (role == null)
-                throw new Exception("Role not found.");
+                throw new NotFoundException("Role not found.");
 
             var duplicate =
                 await _roleRepository.GetByNameAsync(request.Name);
@@ -83,7 +84,7 @@ namespace BusinessPlatform.Application.Services
             if (duplicate != null &&
                 duplicate.Id != id)
             {
-                throw new Exception("Role already exists.");
+                throw new BadRequestException("Role already exists.");
             }
 
             role.Name = request.Name.Trim();
@@ -105,24 +106,24 @@ namespace BusinessPlatform.Application.Services
 
             if (role == null)
             {
-                throw new Exception("Role not found.");
+                throw new NotFoundException("Role not found.");
             }
 
             bool hasUsers = await _roleRepository.HasUsersAsync(id);
 
             if (hasUsers)
             {
-                throw new Exception("Cannot delete role because it is assigned to users.");
+                throw new BadRequestException("Cannot delete role because it is assigned to users.");
             }
 
             if (role.Name.Equals("Admin", StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception("Admin role cannot be deleted.");
+                throw new BadRequestException("Admin role cannot be deleted.");
             }
 
             if (role.Name.Equals("Employee", StringComparison.OrdinalIgnoreCase))
             {
-                throw new Exception("Employee role cannot be deleted.");
+                throw new BadRequestException("Employee role cannot be deleted.");
             }
 
             await _roleRepository.DeleteAsync(role);
@@ -136,7 +137,7 @@ namespace BusinessPlatform.Application.Services
 
             if (role == null)
             {
-                throw new Exception("Role not found.");
+                throw new NotFoundException("Role not found.");
             }
 
             var permissions = await _roleRepository.GetPermissionsAsync(roleId);
@@ -153,12 +154,12 @@ namespace BusinessPlatform.Application.Services
             var role = await _roleRepository.GetByIdAsync(roleId);
 
             if (role == null)
-                throw new Exception("Role not found.");
+                throw new NotFoundException("Role not found.");
 
             var permissions = await _permissionRepository.GetByIdsAsync(request.PermissionIds);
 
             if (permissions.Count != request.PermissionIds.Count)
-                throw new Exception("One or more permissions are invalid.");
+                throw new BadRequestException("One or more permissions are invalid.");
 
             await _roleRepository.RemovePermissionsAsync(roleId);
 

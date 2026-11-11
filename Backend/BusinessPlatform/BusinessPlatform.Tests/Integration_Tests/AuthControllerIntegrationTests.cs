@@ -10,16 +10,33 @@ using Xunit;
 
 namespace BusinessPlatform.Tests.Integration_Tests;
 
-public class AuthControllerIntegrationTests : IClassFixture<BusinessPlatformWebApplicationFactory>
+public class AuthControllerIntegrationTests :
+    IClassFixture<BusinessPlatformWebApplicationFactory>, 
+    IAsyncLifetime
 {
     private readonly HttpClient _client;
+    private readonly BusinessPlatformWebApplicationFactory _factory;
 
-    public AuthControllerIntegrationTests(BusinessPlatformWebApplicationFactory factory)
+    public AuthControllerIntegrationTests(
+        BusinessPlatformWebApplicationFactory factory)
     {
+        _factory = factory;
+
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
-            {
-                AllowAutoRedirect = false
-            });
+        {
+            AllowAutoRedirect = false
+        });
+    }
+
+    public async ValueTask InitializeAsync()
+    {
+        await _factory.InitializeDatabaseAsync();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        _client.Dispose();
+        return ValueTask.CompletedTask;
     }
 
     [Fact]
@@ -81,6 +98,9 @@ public class AuthControllerIntegrationTests : IClassFixture<BusinessPlatformWebA
     public async Task Login_WithValidCredentials_ReturnsTokenAndRefreshCookie()
     {
         using var factory = new BusinessPlatformWebApplicationFactory();
+
+        await factory.InitializeDatabaseAsync();
+
         using var scope = factory.Services.CreateScope();
 
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -159,6 +179,9 @@ public class AuthControllerIntegrationTests : IClassFixture<BusinessPlatformWebA
     public async Task Logout_WithValidRefreshTokenCookie_ReturnsOkAndRevokesToken()
     {
         using var factory = new BusinessPlatformWebApplicationFactory();
+
+        await factory.InitializeDatabaseAsync();
+
         using var scope = factory.Services.CreateScope();
 
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -219,6 +242,9 @@ public class AuthControllerIntegrationTests : IClassFixture<BusinessPlatformWebA
     public async Task ChangePassword_WithValidToken_ChangesPasswordSuccessfully()
     {
         using var factory = new BusinessPlatformWebApplicationFactory();
+
+        await factory.InitializeDatabaseAsync();
+
         using var scope = factory.Services.CreateScope();
 
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -287,19 +313,20 @@ public class AuthControllerIntegrationTests : IClassFixture<BusinessPlatformWebA
         var updatedUser = await db.Users
       .SingleAsync(u => u.Id == user.Id);
 
-        Assert.True(
-            BCrypt.Net.BCrypt.Verify(oldPassword, updatedUser.PasswordHash),
-            "The original password hash is no longer valid.");
+        await db.Entry(user).ReloadAsync();
 
-        Assert.False(
-            BCrypt.Net.BCrypt.Verify(newPassword, updatedUser.PasswordHash),
-            "The new password was unexpectedly applied.");
+        Assert.False(BCrypt.Net.BCrypt.Verify(oldPassword, user.PasswordHash));
+
+        Assert.True(BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash));
     }
 
     [Fact]
     public async Task RefreshToken_WithValidCookie_ReturnsNewTokens()
     {
         using var factory = new BusinessPlatformWebApplicationFactory();
+
+        await factory.InitializeDatabaseAsync();
+
         using var scope = factory.Services.CreateScope();
 
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

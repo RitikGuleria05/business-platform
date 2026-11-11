@@ -638,6 +638,9 @@ namespace BusinessPlatform.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users", (string)null);
@@ -793,7 +796,7 @@ namespace BusinessPlatform.Infrastructure.Migrations
                     b.HasOne("BusinessPlatform.Domain.Entities.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Role");

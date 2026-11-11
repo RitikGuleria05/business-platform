@@ -19,13 +19,17 @@ namespace BusinessPlatform.Infrastructure.Database.Configurations
 
 
             builder.Property(x => x.Email)
-                .IsRequired()
-                .HasMaxLength(150);
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+            builder.HasIndex(x => x.Email)
+                .IsUnique();
 
 
             builder.HasOne(x => x.Role)
-                .WithMany(x => x.Users)
-                .HasForeignKey(x => x.RoleId);
+                        .WithMany(x => x.Users)
+                        .HasForeignKey(x => x.RoleId)
+                        .OnDelete(DeleteBehavior.Restrict);
 
 
             builder.HasOne(x => x.Employee)

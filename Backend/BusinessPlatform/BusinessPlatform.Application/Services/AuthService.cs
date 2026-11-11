@@ -80,7 +80,7 @@ namespace BusinessPlatform.Application.Services
 
             if (!user.IsActive)
             {
-                throw new Exception("User account is inactive");
+                throw new ForbiddenException("User account is inactive");
             }
 
             // -------------------------------------------------
@@ -199,14 +199,12 @@ namespace BusinessPlatform.Application.Services
 
             if (user == null)
             {
-                throw new Exception("User not found");
+                throw new UnauthorizedException("Invalid, expired, or revoked refresh token");
             }
 
             if (!user.IsActive)
             {
-                throw new Exception(
-                    "User account is inactive"
-                );
+                throw new ForbiddenException("User account is inactive");
             }
 
             // -------------------------------------------------

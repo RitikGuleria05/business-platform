@@ -169,7 +169,6 @@ function Categories() {
                         ? "Update the category information."
                         : "Add a new product category."
                 }
-                maxWidth="max-w-lg"
             >
                 <CategoryForm
                     category={selectedCategory}

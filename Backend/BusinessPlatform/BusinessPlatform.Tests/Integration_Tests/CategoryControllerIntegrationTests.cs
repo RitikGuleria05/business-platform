@@ -22,6 +22,8 @@ public class CategoryControllerIntegrationTests
         var factory = new BusinessPlatformWebApplicationFactory();
         factory.SetPermissionResult(permissionAllowed);
 
+        await factory.InitializeDatabaseAsync();
+
         var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 

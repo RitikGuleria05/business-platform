@@ -20,6 +20,8 @@ public class InventoryControllerIntegrationTests
         var factory = new BusinessPlatformWebApplicationFactory();
         factory.SetPermissionResult(permissionAllowed);
 
+        await factory.InitializeDatabaseAsync();
+
         using (var scope = factory.Services.CreateScope())
         {
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

@@ -1,5 +1,4 @@
-﻿
-using BusinessPlatform.Domain.Entities;
+﻿using BusinessPlatform.Domain.Entities;
 using BusinessPlatform.Domain.Enums;
 using BusinessPlatform.Infrastructure.Database;
 using BusinessPlatform.Tests.Integration_Tests;
@@ -20,6 +19,8 @@ public class SalesAndReturnsControllerIntegrationTests
     {
         var factory = new BusinessPlatformWebApplicationFactory();
         factory.SetPermissionResult(permissionAllowed);
+
+        await factory.InitializeDatabaseAsync();
 
         using (var scope = factory.Services.CreateScope())
         {
@@ -568,8 +569,7 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, _) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, _) = await SeedSaleDependenciesAsync(factory);
 
             var response = await client.PostAsJsonAsync(
                 "/api/sales",
@@ -588,8 +588,7 @@ public class SalesAndReturnsControllerIntegrationTests
         using (client)
         {
             // Arrange
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
             // Make product inactive
             using (var scope = factory.Services.CreateScope())
@@ -638,13 +637,11 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory, stock: 2);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory, stock: 2);
 
             var response = await client.PostAsJsonAsync(
                 "/api/sales",
-                CreateSaleRequest(
-                    customerId, productId, quantity: 5));
+                CreateSaleRequest(customerId, productId, quantity: 5));
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
@@ -662,15 +659,13 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
             using (var scope = factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                var inventory = await db.Inventories
-                    .SingleAsync(x => x.ProductId == productId);
+                var inventory = await db.Inventories.SingleAsync(x => x.ProductId == productId);
 
                 db.Inventories.Remove(inventory);
 
@@ -693,8 +688,7 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
             var response = await client.PostAsJsonAsync(
                 "/api/sales",
@@ -719,8 +713,7 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
             var response = await client.PostAsJsonAsync(
                 "/api/sales",
@@ -746,11 +739,9 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory, stock: 50);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory, stock: 50);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId, quantity: 5);
+            var saleId = await CreateSaleAsync(client, customerId, productId, quantity: 5);
 
             var response = await client.PostAsync(
                 $"/api/sales/{saleId}/cancel",
@@ -792,11 +783,9 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId);
+            var saleId = await CreateSaleAsync(client, customerId, productId);
 
             var firstResponse = await client.PostAsync(
                 $"/api/sales/{saleId}/cancel",
@@ -816,10 +805,7 @@ public class SalesAndReturnsControllerIntegrationTests
     // SALES RETURNS
     // =========================================================
 
-    private static object CreateReturnRequest(
-        Guid saleId,
-        Guid productId,
-        int quantity = 1)
+    private static object CreateReturnRequest(Guid saleId,Guid productId,int quantity = 1)
     {
         return new
         {
@@ -836,11 +822,7 @@ public class SalesAndReturnsControllerIntegrationTests
         };
     }
 
-    private async Task<Guid> CreateReturnAsync(
-        HttpClient client,
-        Guid saleId,
-        Guid productId,
-        int quantity = 1)
+    private async Task<Guid> CreateReturnAsync(HttpClient client, Guid saleId,Guid productId,int quantity = 1)
     {
         var response = await client.PostAsJsonAsync(
             "/api/salereturns",
@@ -861,11 +843,9 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory, stock: 50);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory, stock: 50);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId, quantity: 5);
+            var saleId = await CreateSaleAsync(client, customerId, productId, quantity: 5);
 
             var response = await client.PostAsJsonAsync(
                 "/api/salereturns",
@@ -873,11 +853,9 @@ public class SalesAndReturnsControllerIntegrationTests
 
             Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
-            var saleReturn = await response.Content
-                .ReadFromJsonAsync<JsonElement>();
+            var saleReturn = await response.Content.ReadFromJsonAsync<JsonElement>();
 
-            Assert.Equal(200m,
-                saleReturn.GetProperty("totalAmount").GetDecimal());
+            Assert.Equal(200m,saleReturn.GetProperty("totalAmount").GetDecimal());
 
             Assert.Single(saleReturn.GetProperty("items").EnumerateArray());
 
@@ -915,8 +893,7 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (_, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (_, productId) = await SeedSaleDependenciesAsync(factory);
 
             var response = await client.PostAsJsonAsync(
                 "/api/salereturns",
@@ -934,11 +911,9 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId);
+            var saleId = await CreateSaleAsync(client, customerId, productId);
 
             var cancelResponse = await client.PostAsync(
                 $"/api/sales/{saleId}/cancel",
@@ -957,19 +932,16 @@ public class SalesAndReturnsControllerIntegrationTests
     [Theory]
     [InlineData(0)]
     [InlineData(-1)]
-    public async Task CreateReturn_WithInvalidQuantity_ReturnsBadRequest(
-        int quantity)
+    public async Task CreateReturn_WithInvalidQuantity_ReturnsBadRequest(int quantity)
     {
         var (factory, client) = await CreateAuthenticatedClientAsync();
 
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId);
+            var saleId = await CreateSaleAsync(client, customerId, productId);
 
             var response = await client.PostAsJsonAsync(
                 "/api/salereturns",
@@ -987,11 +959,9 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId);
+            var saleId = await CreateSaleAsync(client, customerId, productId);
 
             var anotherProductId = Guid.NewGuid();
 
@@ -1045,8 +1015,7 @@ public class SalesAndReturnsControllerIntegrationTests
 
             Assert.Equal(HttpStatusCode.Created, firstReturn.StatusCode);
 
-            var secondReturn = await client.PostAsJsonAsync(
-                "/api/salereturns",
+            var secondReturn = await client.PostAsJsonAsync("/api/salereturns",
                 CreateReturnRequest(saleId, productId, quantity: 3));
 
             Assert.Equal(HttpStatusCode.BadRequest, secondReturn.StatusCode);
@@ -1061,21 +1030,15 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId, quantity: 5);
+            var saleId = await CreateSaleAsync(client, customerId, productId, quantity: 5);
 
-            var firstReturn = await client.PostAsJsonAsync(
-                "/api/salereturns",
-                CreateReturnRequest(saleId, productId, quantity: 3));
+            var firstReturn = await client.PostAsJsonAsync("/api/salereturns",CreateReturnRequest(saleId, productId, quantity: 3));
 
             Assert.Equal(HttpStatusCode.Created, firstReturn.StatusCode);
 
-            var secondReturn = await client.PostAsJsonAsync(
-                "/api/salereturns",
-                CreateReturnRequest(saleId, productId, quantity: 2));
+            var secondReturn = await client.PostAsJsonAsync("/api/salereturns",CreateReturnRequest(saleId, productId, quantity: 2));
 
             Assert.Equal(HttpStatusCode.Created, secondReturn.StatusCode);
 
@@ -1093,17 +1056,13 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId);
+            var saleId = await CreateSaleAsync(client, customerId, productId);
 
-            var returnId = await CreateReturnAsync(
-                client, saleId, productId);
+            var returnId = await CreateReturnAsync(client, saleId, productId);
 
-            var response = await client.GetAsync(
-                $"/api/salereturns/{returnId}");
+            var response = await client.GetAsync($"/api/salereturns/{returnId}");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
@@ -1117,8 +1076,7 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var response = await client.GetAsync(
-                $"/api/salereturns/{Guid.NewGuid()}");
+            var response = await client.GetAsync($"/api/salereturns/{Guid.NewGuid()}");
 
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -1132,21 +1090,17 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var (customerId, productId) =
-                await SeedSaleDependenciesAsync(factory);
+            var (customerId, productId) = await SeedSaleDependenciesAsync(factory);
 
-            var saleId = await CreateSaleAsync(
-                client, customerId, productId);
+            var saleId = await CreateSaleAsync(client, customerId, productId);
 
             await CreateReturnAsync(client, saleId, productId);
 
-            var response = await client.GetAsync(
-                $"/api/salereturns/sale/{saleId}");
+            var response = await client.GetAsync($"/api/salereturns/sale/{saleId}");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var returns = await response.Content
-                .ReadFromJsonAsync<List<JsonElement>>();
+            var returns = await response.Content.ReadFromJsonAsync<List<JsonElement>>();
 
             Assert.NotNull(returns);
             Assert.Single(returns);
@@ -1161,8 +1115,7 @@ public class SalesAndReturnsControllerIntegrationTests
         using (factory)
         using (client)
         {
-            var response = await client.GetAsync(
-                $"/api/salereturns/sale/{Guid.NewGuid()}");
+            var response = await client.GetAsync($"/api/salereturns/sale/{Guid.NewGuid()}");
 
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
@@ -1176,9 +1129,7 @@ public class SalesAndReturnsControllerIntegrationTests
     [InlineData("POST", "/api/salereturns")]
     [InlineData("GET", "/api/salereturns/{id}")]
     [InlineData("GET", "/api/salereturns/sale/{id}")]
-    public async Task SaleReturnEndpoints_WithoutPermission_ReturnForbidden(
-        string method,
-        string route)
+    public async Task SaleReturnEndpoints_WithoutPermission_ReturnForbidden(string method,string route)
     {
         var (factory, client) = await CreateAuthenticatedClientAsync(false);
 
@@ -1187,8 +1138,7 @@ public class SalesAndReturnsControllerIntegrationTests
         {
             route = route.Replace("{id}", Guid.NewGuid().ToString());
 
-            using var request = new HttpRequestMessage(
-                new HttpMethod(method), route);
+            using var request = new HttpRequestMessage(new HttpMethod(method), route);
 
             if (method == "POST")
             {

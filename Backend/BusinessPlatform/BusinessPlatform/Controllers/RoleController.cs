@@ -31,7 +31,7 @@ namespace BusinessPlatform.API.Controllers
         {
             var role = await _roleService.CreateAsync(request);
 
-            return CreatedAtAction(nameof(GetAll),new { id = role.Id },role);
+            return CreatedAtAction(nameof(GetById), new { id = role.Id }, role);
         }
 
         [HttpGet("{id:guid}")]

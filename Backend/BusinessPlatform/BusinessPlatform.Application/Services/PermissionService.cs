@@ -1,6 +1,7 @@
 ﻿using BusinessPlatform.Application.DTOs.Permission;
 using BusinessPlatform.Application.Interfaces;
 using BusinessPlatform.Domain.Entities;
+using BusinessPlatform.Domain.Exceptions;
 
 namespace BusinessPlatform.Application.Services
 {
@@ -33,7 +34,7 @@ namespace BusinessPlatform.Application.Services
             var permission = await _permissionRepository.GetByIdAsync(id);
 
             if (permission == null)
-                throw new Exception("Permission not found.");
+                throw new NotFoundException("Permission not found.");
 
             return new PermissionResponse
             {
@@ -49,12 +50,12 @@ namespace BusinessPlatform.Application.Services
             var exists = await _permissionRepository.GetByNameAsync(request.Name);
 
             if (exists != null)
-                throw new Exception("Permission already exists.");
+                throw new BadRequestException("Permission already exists.");
 
             var module = await _moduleRepository.GetByIdAsync(request.ModuleId);
 
             if (module == null)
-                throw new Exception("Module not found.");
+                throw new NotFoundException("Module not found.");
 
             var permission = new Permission
             {
@@ -81,21 +82,21 @@ namespace BusinessPlatform.Application.Services
 
             if (permission == null)
             {
-                throw new Exception("Permission not found.");
+                throw new NotFoundException("Permission not found.");
             }
 
             var existingPermission = await _permissionRepository.GetByNameAsync(request.Name);
 
             if (existingPermission != null && existingPermission.Id != id)
             {
-                throw new Exception("Permission name already exists.");
+                throw new BadRequestException("Permission name already exists.");
             }
 
             var module = await _moduleRepository.GetByIdAsync(request.ModuleId);
 
             if (module == null)
             {
-                throw new Exception("Module not found.");
+                throw new NotFoundException("Module not found.");
             }
 
             permission.Name = request.Name.Trim();
@@ -120,14 +121,14 @@ namespace BusinessPlatform.Application.Services
 
             if (permission == null)
             {
-                throw new Exception("Permission not found.");
+                throw new NotFoundException("Permission not found.");
             }
 
             bool isAssigned = await _permissionRepository.IsAssignedToAnyRoleAsync(id);
 
             if (isAssigned)
             {
-                throw new Exception("Cannot delete permission because it is assigned to one or more roles.");
+                throw new BadRequestException("Cannot delete permission because it is assigned to one or more roles.");
             }
 
             await _permissionRepository.DeleteAsync(permission);

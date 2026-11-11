@@ -26,7 +26,7 @@ namespace BusinessPlatform.Infrastructure.Database.Configurations
                 .HasDefaultValue(0);
 
             builder.Property(x => x.UpdatedAt)
-                .IsRequired();
+                .IsRequired(false);
 
             builder.HasIndex(x => x.ProductId)
                 .IsUnique();

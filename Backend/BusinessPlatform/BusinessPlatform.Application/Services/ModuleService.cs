@@ -1,6 +1,7 @@
 ﻿using BusinessPlatform.Application.DTOs.Module;
 using BusinessPlatform.Application.Interfaces;
 using BusinessPlatform.Domain.Entities;
+using BusinessPlatform.Domain.Exceptions;
 
 namespace BusinessPlatform.Application.Services
 {
@@ -30,7 +31,7 @@ namespace BusinessPlatform.Application.Services
             var module = await _moduleRepository.GetByIdAsync(id);
 
             if (module == null)
-                throw new Exception("Module not found.");
+                throw new NotFoundException("Module not found.");
 
             return new ModuleResponse
             {
@@ -45,7 +46,7 @@ namespace BusinessPlatform.Application.Services
             var existing = await _moduleRepository.GetByNameAsync(request.Name);
 
             if (existing != null)
-                throw new Exception("Module already exists.");
+                throw new BadRequestException("Module already exists.");
 
             var module = new Module
             {
@@ -71,12 +72,12 @@ namespace BusinessPlatform.Application.Services
             var module = await _moduleRepository.GetByIdAsync(id);
 
             if (module == null)
-                throw new Exception("Module not found.");
+                throw new NotFoundException("Module not found.");
 
             var duplicate = await _moduleRepository.GetByNameAsync(request.Name);
 
             if (duplicate != null && duplicate.Id != id)
-                throw new Exception("Module already exists.");
+                throw new BadRequestException("Module already exists.");
 
             module.Name = request.Name.Trim();
             module.Description = request.Description;
@@ -98,12 +99,12 @@ namespace BusinessPlatform.Application.Services
             var module = await _moduleRepository.GetByIdAsync(id);
 
             if (module == null)
-                throw new Exception("Module not found.");
+                throw new NotFoundException("Module not found.");
 
             bool hasPermissions = await _moduleRepository.HasPermissionsAsync(id);
 
             if (hasPermissions)
-                throw new Exception("Cannot delete module because permissions are assigned to it.");
+                throw new BadRequestException("Cannot delete module because permissions are assigned to it.");
 
             await _moduleRepository.DeleteAsync(module);
 

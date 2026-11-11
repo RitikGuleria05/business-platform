@@ -1,0 +1,49 @@
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: businessplatform-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  api:
+    image: businessplatform-api
+    container_name: businessplatform-api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      Jwt__Key: ${JWT_KEY}
+      ConnectionStrings__ConnStr: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE};User=root;Password=${MYSQL_ROOT_PASSWORD};"
+      Turnstile__SecretKey: ${TURNSTILE_SECRET_KEY}
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ../../Frontend/business-platform-client
+      dockerfile: Dockerfile
+    container_name: businessplatform-frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "3000:80"
+
+volumes:
+  mysql_data:

@@ -29,25 +29,19 @@ function ChangePassword() {
         setSuccess("");
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-            setError(
-                "Please fill in all password fields."
-            );
+            setError("Please fill in all password fields.");
 
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setError(
-                "New password and confirmation do not match."
-            );
+            setError("New password and confirmation do not match.");
 
             return;
         }
 
         if (newPassword === currentPassword) {
-            setError(
-                "New password must be different from your current password."
-            );
+            setError("New password must be different from your current password.");
 
             return;
         }

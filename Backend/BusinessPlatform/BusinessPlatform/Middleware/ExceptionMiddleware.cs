@@ -21,6 +21,10 @@ namespace BusinessPlatform.API.Middleware
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Exception: {ex.GetType().FullName}");
+                Console.WriteLine($"Message: {ex.Message}");
+                Console.WriteLine($"Inner Exception: {ex.InnerException}");
+
                 await HandleExceptionAsync(context, ex);
             }
         }

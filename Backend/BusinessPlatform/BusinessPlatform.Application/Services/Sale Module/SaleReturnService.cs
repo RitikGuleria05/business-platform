@@ -66,6 +66,8 @@ namespace BusinessPlatform.Application.Services.Sale_Module
 
                 decimal totalRefund = 0;
 
+                var requestedQuantities = new Dictionary<Guid, int>();
+
                 foreach (var requestItem in request.Items)
                 {
                     if (requestItem.Quantity <= 0)
@@ -82,17 +84,23 @@ namespace BusinessPlatform.Application.Services.Sale_Module
                     }
 
                     // How much was already returned?
-                    var alreadyReturned = previousReturns.SelectMany(x => x.Items).Where(x => x.ProductId == requestItem.ProductId).Sum(x => x.Quantity);
+                    var alreadyReturned = previousReturns
+     .SelectMany(x => x.Items)
+     .Where(x => x.ProductId == requestItem.ProductId)
+     .Sum(x => x.Quantity);
 
-                    //Remaining quantity that can be returned 
-                    var remainingQuantity = saleItem.Quantity - alreadyReturned;
+                    var alreadyRequested = requestedQuantities
+                        .GetValueOrDefault(requestItem.ProductId, 0);
+
+                    var remainingQuantity = saleItem.Quantity - alreadyReturned - alreadyRequested;
 
                     if (requestItem.Quantity > remainingQuantity)
                     {
                         throw new BadRequestException(
-                            $"Cannot return {requestItem.Quantity} units. " +
-                            $"Only {remainingQuantity} units are available for return.");
+                            $"Cannot return more than the remaining quantity ({remainingQuantity}).");
                     }
+
+                    requestedQuantities[requestItem.ProductId] = alreadyRequested + requestItem.Quantity;
 
                     // Use original sale price
                     var refundAmount = saleItem.UnitPrice * requestItem.Quantity;
